@@ -1,0 +1,48 @@
+Manifest-Version: 1.0
+Main-Class: 
+Class-Path: asm-9.8.jar netty-handler-4.1.82.Final.jar j2objc-annotation
+ s-1.3.jar log4j-api-2.19.0.jar plexus-utils-3.3.0.jar text2speech-1.17.
+ 9.jar commons-lang3-3.12.0.jar annotations-24.0.1.jar oshi-core-6.2.2.j
+ ar asm-analysis-9.8.jar slf4j-api-2.0.1.jar lwjgl-opengl-3.3.1-natives-
+ windows-x86.jar ST4-4.3.jar fmlloader-1.20.1-47.4.9.jar lwjgl-jemalloc-
+ 3.3.1-natives-windows.jar joml-1.10.5.jar antlr-runtime-3.5.2.jar loggi
+ ng-1.1.1.jar toml-3.6.4.jar eventbus-6.0.5.jar lwjgl-jemalloc-3.3.1.jar
+  log4j-core-2.19.0.jar listenablefuture-9999.0-empty-to-avoid-conflict-
+ with-guava.jar mergetool-1.1.5-api.jar netty-transport-classes-epoll-4.
+ 1.82.Final.jar modlauncher-10.0.9.jar lwjgl-glfw-3.3.1-natives-windows.
+ jar bootstraplauncher-1.1.2.jar netty-transport-4.1.82.Final.jar lwjgl-
+ openal-3.3.1.jar lwjgl-openal-3.3.1-natives-windows-arm64.jar lwjgl-ope
+ ngl-3.3.1-natives-windows.jar mixin-0.8.5.jar fastutil-8.5.9.jar error_
+ prone_annotations-2.11.0.jar datafixerupper-6.0.8.jar lwjgl-3.3.1.jar l
+ wjgl-tinyfd-3.3.1-natives-windows.jar java-objc-bridge-1.1.jar lwjgl-st
+ b-3.3.1.jar JarJarFileSystems-0.3.19.jar brigadier-1.1.8.jar lowcodelan
+ guage-1.20.1-47.4.9.jar asm-tree-9.8.jar guava-31.1-jre.jar icu4j-71.1.
+ jar org.abego.treelayout.core-1.0.3.jar maven-artifact-3.8.5.jar httpcl
+ ient-4.5.13.jar jna-platform-5.12.1.jar securejarhandler-2.1.10.jar lwj
+ gl-opengl-3.3.1.jar commons-codec-1.15.jar gson-2.10.jar checker-qual-3
+ .12.0.jar mclanguage-1.20.1-47.4.9.jar lwjgl-openal-3.3.1-natives-windo
+ ws-x86.jar netty-transport-native-unix-common-4.1.82.Final.jar lwjgl-3.
+ 3.1-natives-windows.jar fmlearlydisplay-1.20.1-47.4.9.jar netty-buffer-
+ 4.1.82.Final.jar antlr4-4.9.1.jar antlr4-runtime-4.9.1.jar javax.json-1
+ .0.4.jar lwjgl-3.3.1-natives-windows-arm64.jar commons-io-2.11.0.jar ne
+ tty-resolver-4.1.82.Final.jar jna-5.12.1.jar javafmllanguage-1.20.1-47.
+ 4.9.jar failureaccess-1.0.1.jar httpcore-4.4.15.jar lwjgl-tinyfd-3.3.1.
+ jar commons-logging-1.2.jar lwjgl-3.3.1-natives-windows-x86.jar commons
+ -compress-1.21.jar lwjgl-glfw-3.3.1-natives-windows-arm64.jar forge-1.2
+ 0.1-47.4.9_mapped_official_1.20.1.jar netty-codec-4.1.82.Final.jar jlin
+ e-reader-3.12.1.jar authlib-4.0.43.jar lwjgl-glfw-3.3.1.jar lwjgl-jemal
+ loc-3.3.1-natives-windows-x86.jar lwjgl-tinyfd-3.3.1-natives-windows-ar
+ m64.jar log4j-slf4j2-impl-2.19.0.jar lwjgl-stb-3.3.1-natives-windows.ja
+ r slf4j-simple-1.7.30.jar unsafe-0.2.0.jar lwjgl-glfw-3.3.1-natives-win
+ dows-x86.jar asm-util-9.8.jar JarJarMetadata-0.3.19.jar lwjgl-openal-3.
+ 3.1-natives-windows.jar jsr305-3.0.2.jar noexception-1.7.1.jar JarJarSe
+ lector-0.3.19.jar lwjgl-jemalloc-3.3.1-natives-windows-arm64.jar lwjgl-
+ stb-3.3.1-natives-windows-x86.jar patchy-2.2.10.jar forgespi-7.0.1.jar 
+ netty-common-4.1.82.Final.jar core-3.6.4.jar lwjgl-tinyfd-3.3.1-natives
+ -windows-x86.jar srgutils-0.4.11.jar nashorn-core-15.4.jar typetools-0.
+ 6.3.jar blocklist-1.0.10.jar jopt-simple-5.0.4.jar lwjgl-opengl-3.3.1-n
+ atives-windows-arm64.jar asm-commons-9.8.jar terminalconsoleappender-1.
+ 2.0.jar fmlcore-1.20.1-47.4.9.jar accesstransformers-8.0.4.jar lwjgl-st
+ b-3.3.1-natives-windows-arm64.jar client-extra.jar jline-terminal-3.12.
+ 1.jar mapping-1.20.1-mapping.zip coremods-5.2.4.jar
+

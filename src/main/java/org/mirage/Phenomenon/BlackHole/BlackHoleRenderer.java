@@ -38,51 +38,125 @@ public class BlackHoleRenderer {
         List<BlackHole> blackHoles = BlackHoleManager.getBlackHoles();
         if (blackHoles.isEmpty()) return;
 
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getMainRenderTarget().bindWrite(false);
+        // 渲染事件视界
+        for (BlackHole blackHole : blackHoles) {
+            renderEventHorizon(event, blackHole);
+        }
 
-        applyLensingAndEventHorizonEffect(event, blackHoles);
-
-        // 恢复状态
-        minecraft.getMainRenderTarget().unbindWrite();
+        // 在所有内容渲染完成后应用空间扭曲效果
+        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
+            applyLensingEffect(event, blackHoles);
+        }
     }
 
-    private static void applyLensingAndEventHorizonEffect(RenderLevelStageEvent event, List<BlackHole> blackHoles) {
+    private static void renderEventHorizon(RenderLevelStageEvent event, BlackHole blackHole) {
+        PoseStack poseStack = event.getPoseStack();
+        Vec3 pos = blackHole.getPosition();
+        double radius = blackHole.getRenderRadius(event.getPartialTick());
+
+        poseStack.pushPose();
+        poseStack.translate(pos.x - event.getCamera().getPosition().x,
+                pos.y - event.getCamera().getPosition().y,
+                pos.z - event.getCamera().getPosition().z);
+
+        // 计算相机距离以调整透明度
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        double distance = camera.getPosition().distanceTo(pos);
+        float alpha = (float) Mth.clamp(1.0 - distance / 100.0, 0.1, 0.9);
+
+        // 获取VertexConsumer
+        VertexConsumer consumer = Minecraft.getInstance().renderBuffers().bufferSource()
+                .getBuffer(RenderType.entityTranslucentCull(EVENT_HORIZON_TEXTURE));
+
+        // 细分球体渲染（减少细分程度以提高性能）
+        int stacks = 64;
+        int slices = 64;
+
+        // 生成球体顶点
+        for (int i = 0; i < stacks; ++i) {
+            double theta1 = Math.PI * i / stacks;
+            double theta2 = Math.PI * (i + 1) / stacks;
+
+            for (int j = 0; j < slices; ++j) {
+                double phi1 = 2 * Math.PI * j / slices;
+                double phi2 = 2 * Math.PI * (j + 1) / slices;
+
+                // 计算四个顶点
+                Vec3 v1 = getSpherePoint(radius, theta1, phi1);
+                Vec3 v2 = getSpherePoint(radius, theta1, phi2);
+                Vec3 v3 = getSpherePoint(radius, theta2, phi2);
+                Vec3 v4 = getSpherePoint(radius, theta2, phi1);
+
+                // 绘制两个三角形形成一个四边形面片
+                drawQuad(poseStack, consumer, v1, v2, v3, v4, alpha);
+            }
+        }
+
+        poseStack.popPose();
+    }
+
+    // 计算球体上的点
+    private static Vec3 getSpherePoint(double radius, double theta, double phi) {
+        double x = radius * Math.sin(theta) * Math.cos(phi);
+        double y = radius * Math.sin(theta) * Math.sin(phi);
+        double z = radius * Math.cos(theta);
+        return new Vec3(x, y, z);
+    }
+
+    // 绘制四边形（优化版本）
+    private static void drawQuad(PoseStack poseStack, VertexConsumer consumer, Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4, float alpha) {
+        Vec3 normal = v2.subtract(v1).cross(v3.subtract(v1)).normalize();
+
+        int overlay = 0;
+        int light = 15728880;
+        float nx = (float) normal.x;
+        float ny = (float) normal.y;
+        float nz = (float) normal.z;
+
+        consumer.vertex(poseStack.last().pose(), (float) v1.x, (float) v1.y, (float) v1.z)
+                .color(1.0F, 1.0F, 1.0F, alpha)
+                .uv(0, 0)
+                .overlayCoords(overlay)
+                .uv2(light)
+                .normal(nx, ny, nz)
+                .endVertex();
+
+        consumer.vertex(poseStack.last().pose(), (float) v2.x, (float) v2.y, (float) v2.z)
+                .color(1.0F, 1.0F, 1.0F, alpha)
+                .uv(0, 1)
+                .overlayCoords(overlay)
+                .uv2(light)
+                .normal(nx, ny, nz)
+                .endVertex();
+
+        consumer.vertex(poseStack.last().pose(), (float) v3.x, (float) v3.y, (float) v3.z)
+                .color(1.0F, 1.0F, 1.0F, alpha)
+                .uv(1, 1)
+                .overlayCoords(overlay)
+                .uv2(light)
+                .normal(nx, ny, nz)
+                .endVertex();
+
+        consumer.vertex(poseStack.last().pose(), (float) v4.x, (float) v4.y, (float) v4.z)
+                .color(1.0F, 1.0F, 1.0F, alpha)
+                .uv(1, 0)
+                .overlayCoords(overlay)
+                .uv2(light)
+                .normal(nx, ny, nz)
+                .endVertex();
+    }
+
+    private static void applyLensingEffect(RenderLevelStageEvent event, List<BlackHole> blackHoles) {
         if (blackHoles.isEmpty()) return;
 
         Minecraft minecraft = Minecraft.getInstance();
 
-        // 获取Post-processing着色器效果
-        PostChain postChain = minecraft.gameRenderer.currentEffect();
-        if (postChain == null) {
-            Mirage_gfbs.LOGGER.warn("Post-processing chain is not available");
-            return;
-        }
-        
-        // 查找我们的lensing效果
-        ShaderInstance shaderInstance = null;
-        try {
-            // 通过反射获取postChain中的效果
-            java.lang.reflect.Field passesField = PostChain.class.getDeclaredField("passes");
-            passesField.setAccessible(true);
-            java.util.List<net.minecraft.client.renderer.EffectInstance> passes = 
-                (java.util.List<net.minecraft.client.renderer.EffectInstance>) passesField.get(postChain);
-            
-            for (net.minecraft.client.renderer.EffectInstance pass : passes) {
-                if (pass.getName().equals("lensing")) {
-                    shaderInstance = pass.getEffect();
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            Mirage_gfbs.LOGGER.error("Failed to access post-processing effects: {}", e.getMessage());
-        }
-        
+        // 直接使用已注册的着色器实例
+        ShaderInstance shaderInstance = Mirage_gfbs.ShaderRegistry.LENSING_SHADER_INSTANCE;
         if (shaderInstance == null) {
-            Mirage_gfbs.LOGGER.error("Lensing shader not found in post-processing chain");
+            Mirage_gfbs.LOGGER.error("Lensing shader not initialized");
             return;
         }
-        // 已经在上面检查过了，这里不再重复检查
 
         // 保存当前渲染状态
         minecraft.getMainRenderTarget().bindWrite(false);
@@ -99,6 +173,10 @@ public class BlackHoleRenderer {
 
         } catch (Exception e) {
             Mirage_gfbs.LOGGER.error("Failed to apply lensing effect: {}", e.getMessage());
+        } finally {
+            shaderInstance.clear();
+            // 恢复默认着色器
+            minecraft.gameRenderer.blitShader.clear();
         }
     }
 
@@ -172,16 +250,6 @@ public class BlackHoleRenderer {
             GlStateManager._activeTexture(GL13.GL_TEXTURE0);
         }
 
-        // 设置事件视界纹理
-        Uniform eventHorizonTextureUniform = shaderInstance.getUniform("EventHorizonTexture");
-        if (eventHorizonTextureUniform != null) {
-            // 绑定事件视界纹理到纹理单元2
-            GlStateManager._activeTexture(GL13.GL_TEXTURE2);
-            Minecraft.getInstance().getTextureManager().bindForSetup(EVENT_HORIZON_TEXTURE);
-            eventHorizonTextureUniform.set(2);
-            GlStateManager._activeTexture(GL13.GL_TEXTURE0);
-        }
-
         // 为每个黑洞设置参数
         int blackHoleCount = Math.min(blackHoles.size(), MAX_BLACK_HOLES);
         for (int i = 0; i < blackHoleCount; i++) {
@@ -201,15 +269,6 @@ public class BlackHoleRenderer {
             Uniform eventHorizonUniform = shaderInstance.getUniform("EventHorizon[" + i + "]");
             if (eventHorizonUniform != null) {
                 eventHorizonUniform.set((float) blackHole.getRenderRadius(event.getPartialTick()));
-            }
-
-            // 添加透明度参数
-            Uniform alphaUniform = shaderInstance.getUniform("Alpha[" + i + "]");
-            if (alphaUniform != null) {
-                Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-                double distance = camera.getPosition().distanceTo(blackHole.getPosition());
-                float alpha = (float) Mth.clamp(1.0 - distance / 100.0, 0.1, 0.9);
-                alphaUniform.set(alpha);
             }
         }
 

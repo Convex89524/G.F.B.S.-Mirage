@@ -1,6 +1,4 @@
 {
-  "subtitle.mirage_gfbs.alarm_c7_noboom_a": "C7防爆门警报",
-
   "command.blackhole.create.success": "成功创建黑洞 '%s' 在位置 (%.1f, %.1f, %.1f)",
   "command.blackhole.create.failure": "创建黑洞失败，名称 '%s' 已存在",
   "command.blackhole.delete.success": "成功删除黑洞 '%s'",

@@ -11,20 +11,22 @@ import java.util.Map;
 public class BlackHoleManager {
     private static final Map<String, BlackHole> blackHoles = new HashMap<>();
 
-    // 创建带名称的黑洞
+    // 创建黑洞
     public static boolean createBlackHole(String name, double radius, double lensing, Vec3 pos) {
         synchronized (blackHoles) {
             if (blackHoles.containsKey(name)) {
-                return false; // 名称已存在
+                return false;
             }
             blackHoles.put(name, new BlackHole(radius, lensing, pos));
             return true;
         }
     }
 
-    // 原有的创建方法（保持兼容性）
-    public static void createBlackHole(double radius, double lensing, Vec3 pos) {
-        createBlackHole("BlackHole_" + System.currentTimeMillis(), radius, lensing, pos);
+    // 删除黑洞
+    public static boolean removeBlackHole(String name) {
+        synchronized (blackHoles) {
+            return blackHoles.remove(name) != null;
+        }
     }
 
     // 获取所有黑洞
@@ -34,17 +36,15 @@ public class BlackHoleManager {
         }
     }
 
+    // 原有的创建方法（保持兼容性）
+    public static void createBlackHole(double radius, double lensing, Vec3 pos) {
+        createBlackHole("BlackHole_" + System.currentTimeMillis(), radius, lensing, pos);
+    }
+
     // 按名称获取黑洞
     public static BlackHole getBlackHole(String name) {
         synchronized (blackHoles) {
             return blackHoles.get(name);
-        }
-    }
-
-    // 按名称删除黑洞
-    public static boolean removeBlackHole(String name) {
-        synchronized (blackHoles) {
-            return blackHoles.remove(name) != null;
         }
     }
 

@@ -7,11 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -20,6 +23,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -33,11 +37,14 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.mirage.Command.GlobalSoundPlayCommand;
+import org.mirage.Command.NotificationCommand;
+import org.mirage.Phenomenon.network.Notification.PacketHandler;
+import org.mirage.Phenomenon.network.packets.GlobalSoundPlayer;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(Mirage_gfbs.MODID)
 public class Mirage_gfbs {
 
@@ -68,7 +75,7 @@ public class Mirage_gfbs {
     public Mirage_gfbs() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        LOGGER.info("MOD "+MODID+" 正在初始化...");
+        LOGGER.info("MOD "+MODID+" INIT...");
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -90,18 +97,27 @@ public class Mirage_gfbs {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
         ModSoundEvents.register(modEventBus);
+
+        GlobalSoundPlayer.registerNetworkMessages();
+        GlobalSoundPlayCommand.registerNetworkMessages();
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
         LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
 
-        if (Config.logDirtBlock) LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
+        if (Config.logDirtBlock) {
+            LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
+        }
 
-        LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
+        LOGGER.info("{} {}", Config.magicNumberIntroduction, Config.magicNumber);
 
-        Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+        Config.items.forEach(item -> LOGGER.info("ITEM >> {}", item));
+
+        event.enqueueWork(() -> {
+            PacketHandler.register();
+            LOGGER.info("Registered notification network channel");
+        });
     }
 
     // Add the example block item to the building blocks tab
@@ -113,7 +129,12 @@ public class Mirage_gfbs {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
+        LOGGER.info("server starting");
+    }
+
+    @SubscribeEvent
+    public void onCommandRegister(RegisterCommandsEvent event){
+        NotificationCommand.register(event.getDispatcher());
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
@@ -123,7 +144,7 @@ public class Mirage_gfbs {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
+            LOGGER.info("CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
     }
@@ -134,7 +155,23 @@ public class Mirage_gfbs {
             value = Dist.CLIENT
     )
     public class ShaderRegistry {
-        // Post-processing着色器不需要在这里手动注册
-        // 它们会在JSON中定义并由Minecraft自动处理
+        public static ShaderInstance LENSING_SHADER_INSTANCE;
+
+        @SubscribeEvent
+        public static void registerShaders(RegisterShadersEvent event) {
+            try {
+                event.registerShader(
+                        new ShaderInstance(
+                                event.getResourceProvider(),
+                                new ResourceLocation(Mirage_gfbs.MODID, "lensing"),
+                                DefaultVertexFormat.POSITION_TEX),
+                        shader -> {
+                            LENSING_SHADER_INSTANCE = shader;
+                        }
+                );
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to load lensing shader", e);
+            }
+        }
     }
 }

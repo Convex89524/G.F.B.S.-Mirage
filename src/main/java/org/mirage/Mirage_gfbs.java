@@ -1,20 +1,19 @@
 package org.mirage;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.datafixers.types.templates.Check;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -23,7 +22,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -37,8 +35,11 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+
+import org.mirage.Command.CameraShakeCommand;
 import org.mirage.Command.GlobalSoundPlayCommand;
 import org.mirage.Command.NotificationCommand;
+import org.mirage.Phenomenon.CameraShake.CameraShakeModule;
 import org.mirage.Phenomenon.network.Notification.PacketHandler;
 import org.mirage.Phenomenon.network.packets.GlobalSoundPlayer;
 import org.slf4j.Logger;
@@ -56,6 +57,8 @@ public class Mirage_gfbs {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "mirage_gfbs" namespace
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+
+    public static final DeferredRegister<SoundEvent> SOUND = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, MODID);
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "mirage_gfbs" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
@@ -87,6 +90,8 @@ public class Mirage_gfbs {
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
+        SOUND.register(modEventBus);
+
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -96,11 +101,11 @@ public class Mirage_gfbs {
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
-        ModSoundEvents.register(modEventBus);
-
         GlobalSoundPlayer.registerNetworkMessages();
         GlobalSoundPlayCommand.registerNetworkMessages();
     }
+
+    public static GameRules.Key<GameRules.IntegerValue> RULE_MIRAGE_NOTIFICATION_SHOW_TIME;
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("HELLO FROM COMMON SETUP");
@@ -118,6 +123,18 @@ public class Mirage_gfbs {
             PacketHandler.register();
             LOGGER.info("Registered notification network channel");
         });
+
+        event.enqueueWork(() -> {
+            // 注册游戏规则
+            RULE_MIRAGE_NOTIFICATION_SHOW_TIME = GameRules.register(
+                    "mirageNotificationShowTime",
+                    GameRules.Category.MISC,
+                    GameRules.IntegerValue.create(12) // 默认值10秒
+            );
+            LOGGER.info("Registered Mirage notification game rule");
+        });
+
+        CameraShakeModule.registerNetwork(event);
     }
 
     // Add the example block item to the building blocks tab
@@ -135,6 +152,7 @@ public class Mirage_gfbs {
     @SubscribeEvent
     public void onCommandRegister(RegisterCommandsEvent event){
         NotificationCommand.register(event.getDispatcher());
+        CameraShakeCommand.register(event.getDispatcher());
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

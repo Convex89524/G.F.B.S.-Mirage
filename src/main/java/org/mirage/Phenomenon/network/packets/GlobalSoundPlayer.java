@@ -26,7 +26,6 @@ public class GlobalSoundPlayer {
             PROTOCOL_VERSION::equals
     );
 
-    // 注册网络包
     public static void registerNetworkMessages() {
         int packetId = 0;
         CHANNEL.registerMessage(packetId++, SoundPacket.class,
@@ -36,20 +35,17 @@ public class GlobalSoundPlayer {
         );
     }
 
-    // 处理网络包（客户端侧）
     private static void handleSoundPacket(SoundPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(packet.soundId);
             if (sound != null) {
-                // 确保在客户端执行
                 if (ctx.get().getDirection().getReceptionSide().isClient()) {
                     LocalPlayer player = Minecraft.getInstance().player;
                     if (player != null) {
                         Vec3 pos = player.position();
-                        // 在客户端玩家位置播放声音
                         player.level().playLocalSound(
                                 pos.x, pos.y, pos.z,
-                                sound, SoundSource.MASTER,
+                                sound, packet.soundSource,
                                 packet.volume, 1.0f, false
                         );
                     }
@@ -59,28 +55,34 @@ public class GlobalSoundPlayer {
         ctx.get().setPacketHandled(true);
     }
 
-    // 向所有玩家发送声音
-    public static void playToAllClients(ServerPlayer sender, ResourceLocation soundId, float volume) {
-        CHANNEL.send(PacketDistributor.ALL.noArg(), new SoundPacket(soundId, volume));
+    // 新增SoundSource参数以指定声音类型
+    public static void playToAllClients(ServerPlayer sender, ResourceLocation soundId, SoundSource soundSource, float volume) {
+        CHANNEL.send(PacketDistributor.ALL.noArg(), new SoundPacket(soundId, soundSource, volume));
     }
 
-    // 网络包数据类
     public static class SoundPacket {
         public final ResourceLocation soundId;
+        public final SoundSource soundSource;  // 新增字段
         public final float volume;
 
-        public SoundPacket(ResourceLocation soundId, float volume) {
+        public SoundPacket(ResourceLocation soundId, SoundSource soundSource, float volume) {
             this.soundId = soundId;
+            this.soundSource = soundSource;
             this.volume = volume;
         }
 
         public void encode(FriendlyByteBuf buffer) {
             buffer.writeResourceLocation(soundId);
+            buffer.writeEnum(soundSource);  // 写入枚举值
             buffer.writeFloat(volume);
         }
 
         public static SoundPacket decode(FriendlyByteBuf buffer) {
-            return new SoundPacket(buffer.readResourceLocation(), buffer.readFloat());
+            return new SoundPacket(
+                    buffer.readResourceLocation(),
+                    buffer.readEnum(SoundSource.class),  // 读取枚举值
+                    buffer.readFloat()
+            );
         }
     }
 }

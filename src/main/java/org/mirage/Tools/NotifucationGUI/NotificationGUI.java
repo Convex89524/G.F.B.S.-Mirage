@@ -5,6 +5,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.GameRules;
+import org.mirage.Mirage_gfbs;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,14 +15,13 @@ import java.util.List;
 public class NotificationGUI {
     private static final List<Notification> notifications = new ArrayList<>();
     private static final int ANIMATION_DURATION = 20; // 动画时长（ticks）
-    private static final int DISPLAY_DURATION = 200; // 显示持续时间（ticks）
     private static final float WIDTH_HEIGHT_RATIO = 2.85f;
     private static final int MARGIN = 10; // 屏幕边缘间距
     private static final int PADDING = 8; // 内容内边距
     private static final int NOTIFICATION_SPACING = 5; // 弹窗之间的间距
     private static final long DUPLICATE_CHECK_TIME_WINDOW = 1000; // 重复检查时间窗口（毫秒）
 
-    public static void showNotification(String title, String message) {
+    public static void showNotification(String title, String message, int displayTime) {
         Component titleComponent = Component.literal(title);
         Component messageComponent = Component.literal(message);
 
@@ -31,7 +33,8 @@ public class NotificationGUI {
             }
         }
 
-        Notification newNotification = new Notification(titleComponent, messageComponent, currentTime);
+        // 传递显示时间给Notification
+        Notification newNotification = new Notification(titleComponent, messageComponent, currentTime, displayTime);
         notifications.add(newNotification);
         updateNotificationPositions();
     }
@@ -82,6 +85,7 @@ public class NotificationGUI {
         private int targetY;
         private int animationTimer;
         private int displayTimer;
+        private final int displayTime;
         private boolean isShowing = true;
         private boolean isHiding = false;
         private float prevProgress = 0f;
@@ -89,10 +93,11 @@ public class NotificationGUI {
         private final long creationTime; // 通知创建时间戳
         private float alpha = 0f; // 透明度
 
-        public Notification(Component title, Component message, long creationTime) {
+        public Notification(Component title, Component message, long creationTime, int displayTime) {
             this.title = title;
             this.message = message;
             this.creationTime = creationTime;
+            this.displayTime = displayTime;
 
             // 计算弹窗尺寸（基于屏幕高度）
             int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
@@ -114,26 +119,25 @@ public class NotificationGUI {
         }
 
         public void tick() {
-            // 平滑移动到目标Y位置
             float moveSpeed = 0.2f;
             currentY = Mth.lerp(moveSpeed, currentY, targetY);
 
+            int currentDisplayDuration = this.displayTime;
+            Mirage_gfbs.LOGGER.info("G.F.B.S. Value: {}", currentDisplayDuration);
+
             if (isShowing && animationTimer < ANIMATION_DURATION) {
                 animationTimer++;
-                // 更新透明度 - 淡入
                 alpha = (float) animationTimer / ANIMATION_DURATION;
             } else if (isShowing) {
-                // 显示动画完成，开始计算显示时间
                 displayTimer++;
-                alpha = 1.0f; // 完全显示
-                if (displayTimer >= DISPLAY_DURATION) {
+                alpha = 1.0f;
+                if (displayTimer >= currentDisplayDuration) {
                     isShowing = false;
                     isHiding = true;
-                    animationTimer = ANIMATION_DURATION; // 确保从正确的位置开始隐藏
+                    animationTimer = ANIMATION_DURATION;
                 }
             } else if (isHiding && animationTimer > 0) {
                 animationTimer--;
-                // 更新透明度 - 淡出
                 alpha = (float) animationTimer / ANIMATION_DURATION;
             }
         }

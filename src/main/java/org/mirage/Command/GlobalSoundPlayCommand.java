@@ -2,14 +2,20 @@ package org.mirage.Command;
 
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -19,25 +25,101 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.mirage.Phenomenon.network.packets.GlobalSoundPlayer;
 
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class GlobalSoundPlayCommand {
 
-    // 创建一个静态的建议提供器，用于动态过滤声音ID
+    // 创建一个更智能的建议提供器
     private static final SuggestionProvider<CommandSourceStack> SOUND_SUGGESTIONS =
-            (context, builder) -> {
-                String input = builder.getInput();
-                String lastPart = input.substring(input.lastIndexOf(' ') + 1);
+            (context, builder) -> getSoundSuggestions(context, builder);
 
-                // 获取所有声音ID并根据输入过滤
-                return SharedSuggestionProvider.suggestResource(
-                        ForgeRegistries.SOUND_EVENTS.getKeys().stream()
-                                .filter(id -> id.toString().contains(lastPart))
-                                .collect(Collectors.toList()),
-                        builder
-                );
-            };
+    // 创建SoundSource的建议提供器
+    private static final SuggestionProvider<CommandSourceStack> SOUND_SOURCE_SUGGESTIONS =
+            (context, builder) -> SharedSuggestionProvider.suggest(
+                    Arrays.stream(SoundSource.values())
+                            .map(Enum::name)
+                            .collect(Collectors.toList()),
+                    builder
+            );
+
+    private static CompletableFuture<Suggestions> getSoundSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+        String input = builder.getRemaining().toLowerCase(Locale.ROOT);
+        List<ResourceLocation> soundIds = new ArrayList<>(
+                context.getSource().registryAccess().registryOrThrow(Registries.SOUND_EVENT).keySet()
+        );
+
+        List<String> suggestions = soundIds.stream()
+                .map(id -> new SoundSuggestion(id, calculateRelevance(id, input)))
+                .filter(suggestion -> suggestion.relevance > 0)
+                .sorted(Comparator.comparingInt((SoundSuggestion s) -> s.relevance).reversed()
+                        .thenComparing(s -> s.id.toString())) // 相同相关性按字母顺序排序
+                .map(s -> s.id.toString())
+                .collect(Collectors.toList());
+
+        if (input.isEmpty() && suggestions.size() > 50) {
+            suggestions = suggestions.subList(0, 50);
+        }
+
+        return SharedSuggestionProvider.suggest(suggestions, builder);
+    }
+
+    // 计算声音ID的相关性分数
+    private static int calculateRelevance(ResourceLocation soundId, String input) {
+        String idStr = soundId.toString().toLowerCase(Locale.ROOT);
+        String namespace = soundId.getNamespace().toLowerCase(Locale.ROOT);
+        String path = soundId.getPath().toLowerCase(Locale.ROOT);
+
+        if (input.isEmpty()) {
+            return 1; // 默认相关性
+        }
+
+        // 完全匹配得最高分
+        if (idStr.equals(input)) {
+            return 100;
+        }
+
+        // 开头匹配得高分
+        if (idStr.startsWith(input)) {
+            return 90;
+        }
+
+        // 包含输入内容
+        if (idStr.contains(input)) {
+            return 80;
+        }
+
+        // 路径部分匹配
+        if (path.contains(input)) {
+            return 70;
+        }
+
+        // 命名空间匹配
+        if (namespace.contains(input)) {
+            return 60;
+        }
+
+        // 单词开头匹配（以下划线或点分隔）
+        if (Arrays.stream(path.split("[_.]"))
+                .anyMatch(part -> part.startsWith(input))) {
+            return 50;
+        }
+
+        return 0;
+    }
+
+    // 内部类用于存储建议和相关性分数
+    private static class SoundSuggestion {
+        public final ResourceLocation id;
+        public final int relevance;
+
+        public SoundSuggestion(ResourceLocation id, int relevance) {
+            this.id = id;
+            this.relevance = relevance;
+        }
+    }
 
     // 注册网络消息
     public static void registerNetworkMessages() {
@@ -56,7 +138,8 @@ public class GlobalSoundPlayCommand {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
-                GlobalSoundPlayer.playToAllClients(player, packet.soundId, packet.volume);
+                // 使用新的方法签名，包含SoundSource参数
+                GlobalSoundPlayer.playToAllClients(player, packet.soundId, packet.soundSource, packet.volume);
             }
         });
         ctx.get().setPacketHandled(true);
@@ -70,13 +153,14 @@ public class GlobalSoundPlayCommand {
             event.getDispatcher().register(Commands.literal("playsoundglobal")
                     .requires(source -> source.hasPermission(3))
                     .then(Commands.argument("sound_id", ResourceLocationArgument.id())
-                            .suggests(SOUND_SUGGESTIONS) // 使用动态过滤的建议提供器
+                            .suggests(SOUND_SUGGESTIONS) // 使用改进的建议提供器
                             .executes(context -> {
                                 ResourceLocation soundId = ResourceLocationArgument.getId(context, "sound_id");
                                 ServerPlayer player = context.getSource().getPlayer();
 
                                 if (player != null) {
-                                    GlobalSoundPlayer.playToAllClients(player, soundId, 1.0f);
+                                    // 使用默认的SoundSource (MASTER)
+                                    GlobalSoundPlayer.playToAllClients(player, soundId, SoundSource.MASTER, 1.0f);
                                 }
                                 return 1;
                             })
@@ -87,10 +171,31 @@ public class GlobalSoundPlayCommand {
                                         ServerPlayer player = context.getSource().getPlayer();
 
                                         if (player != null) {
-                                            GlobalSoundPlayer.playToAllClients(player, soundId, volume);
+                                            // 使用默认的SoundSource (MASTER)
+                                            GlobalSoundPlayer.playToAllClients(player, soundId, SoundSource.MASTER, volume);
                                         }
                                         return 1;
                                     })
+                                    .then(Commands.argument("sound_source", StringArgumentType.word())
+                                            .suggests(SOUND_SOURCE_SUGGESTIONS) // 添加SoundSource建议
+                                            .executes(context -> {
+                                                ResourceLocation soundId = ResourceLocationArgument.getId(context, "sound_id");
+                                                float volume = FloatArgumentType.getFloat(context, "volume");
+                                                String soundSourceStr = StringArgumentType.getString(context, "sound_source");
+                                                ServerPlayer player = context.getSource().getPlayer();
+
+                                                if (player != null) {
+                                                    try {
+                                                        SoundSource soundSource = SoundSource.valueOf(soundSourceStr.toUpperCase());
+                                                        GlobalSoundPlayer.playToAllClients(player, soundId, soundSource, volume);
+                                                    } catch (IllegalArgumentException e) {
+                                                        // 无效的SoundSource，使用默认值
+                                                        GlobalSoundPlayer.playToAllClients(player, soundId, SoundSource.MASTER, volume);
+                                                    }
+                                                }
+                                                return 1;
+                                            })
+                                    )
                             )
                     )
             );
@@ -103,11 +208,12 @@ public class GlobalSoundPlayCommand {
         public static void registerClientCommands(RegisterClientCommandsEvent event) {
             event.getDispatcher().register(Commands.literal("playsoundglobal")
                     .then(Commands.argument("sound_id", ResourceLocationArgument.id())
+                            .suggests(SOUND_SUGGESTIONS) // 客户端也使用相同的建议提供器
                             .executes(context -> {
                                 ResourceLocation soundId = ResourceLocationArgument.getId(context, "sound_id");
 
                                 GlobalSoundPlayer.CHANNEL.sendToServer(
-                                        new SoundCommandPacket(soundId, 1.0f)
+                                        new SoundCommandPacket(soundId, SoundSource.MASTER, 1.0f)
                                 );
                                 return 1;
                             })
@@ -117,10 +223,31 @@ public class GlobalSoundPlayCommand {
                                         float volume = FloatArgumentType.getFloat(context, "volume");
 
                                         GlobalSoundPlayer.CHANNEL.sendToServer(
-                                                new SoundCommandPacket(soundId, volume)
+                                                new SoundCommandPacket(soundId, SoundSource.MASTER, volume)
                                         );
                                         return 1;
                                     })
+                                    .then(Commands.argument("sound_source", StringArgumentType.word())
+                                            .suggests(SOUND_SOURCE_SUGGESTIONS) // 添加SoundSource建议
+                                            .executes(context -> {
+                                                ResourceLocation soundId = ResourceLocationArgument.getId(context, "sound_id");
+                                                float volume = FloatArgumentType.getFloat(context, "volume");
+                                                String soundSourceStr = StringArgumentType.getString(context, "sound_source");
+
+                                                try {
+                                                    SoundSource soundSource = SoundSource.valueOf(soundSourceStr.toUpperCase());
+                                                    GlobalSoundPlayer.CHANNEL.sendToServer(
+                                                            new SoundCommandPacket(soundId, soundSource, volume)
+                                                    );
+                                                } catch (IllegalArgumentException e) {
+                                                    // 无效的SoundSource，使用默认值
+                                                    GlobalSoundPlayer.CHANNEL.sendToServer(
+                                                            new SoundCommandPacket(soundId, SoundSource.MASTER, volume)
+                                                    );
+                                                }
+                                                return 1;
+                                            })
+                                    )
                             )
                     )
             );
@@ -130,20 +257,27 @@ public class GlobalSoundPlayCommand {
     // 声音命令网络包数据类
     public static class SoundCommandPacket {
         public final ResourceLocation soundId;
+        public final SoundSource soundSource; // 新增字段
         public final float volume;
 
-        public SoundCommandPacket(ResourceLocation soundId, float volume) {
+        public SoundCommandPacket(ResourceLocation soundId, SoundSource soundSource, float volume) {
             this.soundId = soundId;
+            this.soundSource = soundSource;
             this.volume = volume;
         }
 
         public void encode(FriendlyByteBuf buffer) {
             buffer.writeResourceLocation(soundId);
+            buffer.writeEnum(soundSource); // 写入枚举
             buffer.writeFloat(volume);
         }
 
         public static SoundCommandPacket decode(FriendlyByteBuf buffer) {
-            return new SoundCommandPacket(buffer.readResourceLocation(), buffer.readFloat());
+            return new SoundCommandPacket(
+                    buffer.readResourceLocation(),
+                    buffer.readEnum(SoundSource.class), // 读取枚举
+                    buffer.readFloat()
+            );
         }
     }
 }

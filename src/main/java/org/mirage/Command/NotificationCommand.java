@@ -15,7 +15,7 @@ import java.util.Collection;
 public class NotificationCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("Notification")
-                .requires(source -> source.hasPermission(3))
+                .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("targets", EntityArgument.players())
                         .then(Commands.argument("title", StringArgumentType.word())
                                 .then(Commands.argument("message", StringArgumentType.greedyString())

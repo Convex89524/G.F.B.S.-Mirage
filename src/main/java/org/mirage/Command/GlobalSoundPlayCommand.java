@@ -151,7 +151,7 @@ public class GlobalSoundPlayCommand {
         @SubscribeEvent
         public static void registerCommands(RegisterCommandsEvent event) {
             event.getDispatcher().register(Commands.literal("playsoundglobal")
-                    .requires(source -> source.hasPermission(3))
+                    .requires(source -> source.hasPermission(2))
                     .then(Commands.argument("sound_id", ResourceLocationArgument.id())
                             .suggests(SOUND_SUGGESTIONS) // 使用改进的建议提供器
                             .executes(context -> {

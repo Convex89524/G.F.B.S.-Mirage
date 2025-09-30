@@ -20,7 +20,7 @@ public class CameraShakeCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         // 创建基础命令
         LiteralArgumentBuilder<CommandSourceStack> cameraShakeCommand = Commands.literal("CameraShake")
-                .requires(source -> source.hasPermission(3))
+                .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("targets", EntityArgument.players())
                         .then(Commands.argument("speed", FloatArgumentType.floatArg(0.01f, 100.0f))
                                 .then(Commands.argument("maxAmplitude", FloatArgumentType.floatArg(0.01f, 10.0f))
@@ -38,7 +38,7 @@ public class CameraShakeCommand {
         dispatcher.register(cameraShakeCommand);
 
         LiteralArgumentBuilder<CommandSourceStack> cameraShakeStopCommand = Commands.literal("CameraShakeStop")
-                .requires(source -> source.hasPermission(3))
+                .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("targets", EntityArgument.players())
                         .executes(CameraShakeCommand::executeStopCommand)
                 );

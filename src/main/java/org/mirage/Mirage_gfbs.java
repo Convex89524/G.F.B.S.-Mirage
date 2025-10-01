@@ -32,19 +32,20 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import org.mirage.Command.CameraShakeCommand;
-import org.mirage.Command.GlobalSoundPlayCommand;
-import org.mirage.Command.NotificationCommand;
+import org.mirage.Command.*;
 import org.mirage.Phenomenon.CameraShake.CameraShakeModule;
 import org.mirage.Phenomenon.network.Notification.PacketHandler;
 import org.mirage.Phenomenon.network.packets.GlobalSoundPlayer;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 @Mod(Mirage_gfbs.MODID)
 public class Mirage_gfbs {
@@ -53,6 +54,9 @@ public class Mirage_gfbs {
     public static final String MODID = "mirage_gfbs";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+
+    public static final Path SCRIPTS_DIR = FMLPaths.CONFIGDIR.get().resolve("Mirage_gfbs/scripts");
+
     // Create a Deferred Register to hold Blocks which will all be registered under the "mirage_gfbs" namespace
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "mirage_gfbs" namespace
@@ -84,6 +88,8 @@ public class Mirage_gfbs {
 
         GlobalSoundPlayer.registerNetworkMessages();
         GlobalSoundPlayCommand.registerNetworkMessages();
+
+        createscriptdir();
     }
 
     public static GameRules.Key<GameRules.IntegerValue> RULE_MIRAGE_NOTIFICATION_SHOW_TIME;
@@ -116,6 +122,11 @@ public class Mirage_gfbs {
         });
 
         CameraShakeModule.registerNetwork(event);
+
+        event.enqueueWork(() -> {
+            org.mirage.Phenomenon.network.ScriptSystem.NetworkHandler.register();
+            LOGGER.info("Registered ScriptSystem network channel");
+        });
     }
 
     // Add the example block item to the building blocks tab
@@ -134,6 +145,9 @@ public class Mirage_gfbs {
     public void onCommandRegister(RegisterCommandsEvent event){
         NotificationCommand.register(event.getDispatcher());
         CameraShakeCommand.register(event.getDispatcher());
+
+        UploadScriptCommand.register(event.getDispatcher());
+        CallScriptCommand.register(event.getDispatcher());
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
@@ -170,6 +184,17 @@ public class Mirage_gfbs {
                 );
             } catch (IOException e) {
                 throw new RuntimeException("Failed to load lensing shader", e);
+            }
+        }
+    }
+
+    private void createscriptdir() {
+        File dir = SCRIPTS_DIR.toFile();
+        if (!dir.exists()) {
+            if (dir.mkdirs()) {
+                LOGGER.info("Created scripts directory: {}", SCRIPTS_DIR);
+            } else {
+                LOGGER.error("Failed to create scripts directory: {}", SCRIPTS_DIR);
             }
         }
     }

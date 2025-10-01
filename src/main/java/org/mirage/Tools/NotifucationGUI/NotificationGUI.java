@@ -17,9 +17,10 @@ public class NotificationGUI {
     private static final int ANIMATION_DURATION = 20; // 动画时长（ticks）
     private static final float WIDTH_HEIGHT_RATIO = 2.85f;
     private static final int MARGIN = 10; // 屏幕边缘间距
-    private static final int PADDING = 8; // 内容内边距
-    private static final int NOTIFICATION_SPACING = 5; // 弹窗之间的间距
+    private static final int PADDING = 6; // 内容内边距 (从8减小到6，缩小25%)
+    private static final int NOTIFICATION_SPACING = 4; // 弹窗之间的间距 (从5减小到4，缩小20%)
     private static final long DUPLICATE_CHECK_TIME_WINDOW = 1000; // 重复检查时间窗口（毫秒）
+    private static final float SCALE = 0.75f; // 缩放因子
 
     public static void showNotification(String title, String message, int displayTime) {
         Component titleComponent = Component.literal(title);
@@ -65,7 +66,7 @@ public class NotificationGUI {
 
     private static void updateNotificationPositions() {
         int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-        int notificationHeight = screenHeight / 5;
+        int notificationHeight = (int) ((screenHeight / 5) * SCALE); // 应用缩放因子
 
         // 计算每个通知的目标Y位置
         for (int i = 0; i < notifications.size(); i++) {
@@ -99,9 +100,9 @@ public class NotificationGUI {
             this.creationTime = creationTime;
             this.displayTime = displayTime;
 
-            // 计算弹窗尺寸（基于屏幕高度）
+            // 计算弹窗尺寸（基于屏幕高度），应用缩放因子
             int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-            this.height = screenHeight / 5; // 高度为屏幕高度的1/5
+            this.height = (int) ((screenHeight / 5) * SCALE); // 高度为屏幕高度的1/5再缩小25%
             this.width = (int) (height * WIDTH_HEIGHT_RATIO);
 
             // 计算目标位置（右下角）
@@ -123,8 +124,6 @@ public class NotificationGUI {
             currentY = Mth.lerp(moveSpeed, currentY, targetY);
 
             int currentDisplayDuration = this.displayTime;
-            Mirage_gfbs.LOGGER.info("G.F.B.S. Value: {}", currentDisplayDuration);
-
             if (isShowing && animationTimer < ANIMATION_DURATION) {
                 animationTimer++;
                 alpha = (float) animationTimer / ANIMATION_DURATION;

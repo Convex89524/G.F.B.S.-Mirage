@@ -66,7 +66,6 @@ public class BlackHoleCommand {
     }
 
     private static int createBlackHole(CommandContext<CommandSourceStack> context, String name, Vec3 position, double radius, double lensing) {
-        // 在服务端创建黑洞
         boolean success = BlackHoleManager.createBlackHole(name, radius, lensing, position);
 
         if (success) {
@@ -87,7 +86,6 @@ public class BlackHoleCommand {
     }
 
     private static int deleteBlackHole(CommandContext<CommandSourceStack> context, String name) {
-        // 在服务端删除黑洞
         boolean success = BlackHoleManager.removeBlackHole(name);
 
         if (success) {

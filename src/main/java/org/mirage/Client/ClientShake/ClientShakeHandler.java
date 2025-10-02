@@ -28,7 +28,7 @@ import java.util.Random;
 
 @Mod.EventBusSubscriber(modid = "mirage_gfbs", bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientShakeHandler {
-    // 震动参数
+    // 参数
     public static float currentAmplitude = 0;
     public static long startTime = 0;
     public static float speed;
@@ -37,7 +37,6 @@ public class ClientShakeHandler {
     public static int riseTime;
     public static int fallTime;
 
-    // 用于生成随机震动方向的随机数生成器
     private static final Random random = new Random();
     private static Vec3 currentShakeDirection = Vec3.ZERO;
     private static Vec3 targetShakeDirection = Vec3.ZERO;
@@ -57,11 +56,9 @@ public class ClientShakeHandler {
             return Vec3.ZERO;
         }
 
-        // 计算当前振幅
         currentAmplitude = calculateCurrentAmplitude(elapsed);
         if (currentAmplitude <= 0) return Vec3.ZERO;
 
-        // 使用三个不同频率的正弦函数生成更自然的震动效果
         double xOffset = Math.sin(elapsed * speed / 1000.0) * currentAmplitude;
         double yOffset = Math.sin(elapsed * speed / 1000.0 * 1.17 + 0.5) * currentAmplitude; // 不同频率和相位
         double zOffset = Math.sin(elapsed * speed / 1000.0 * 0.83 + 1.2) * currentAmplitude; // 不同频率和相位
@@ -100,13 +97,11 @@ public class ClientShakeHandler {
 
         long currentTime = System.currentTimeMillis();
 
-        // 定期更新目标震动方向
         if (currentTime - lastDirectionChangeTime > DIRECTION_CHANGE_INTERVAL) {
             targetShakeDirection = generateRandomDirection();
             lastDirectionChangeTime = currentTime;
         }
 
-        // 平滑过渡到目标方向
         if (!currentShakeDirection.equals(targetShakeDirection)) {
             double dx = targetShakeDirection.x - currentShakeDirection.x;
             double dy = targetShakeDirection.y - currentShakeDirection.y;
@@ -119,7 +114,6 @@ public class ClientShakeHandler {
             ).normalize();
         }
 
-        // 应用震动到摄像机方向
         applyShakeToCamera(event, shakeOffset);
     }
 
@@ -127,10 +121,8 @@ public class ClientShakeHandler {
      * 将震动效果应用到相机
      */
     private static void applyShakeToCamera(ViewportEvent.ComputeCameraAngles event, Vec3 shakeOffset) {
-        // 将偏移向量投影到当前震动方向上
         Vec3 rotationOffset = currentShakeDirection.scale(shakeOffset.length());
 
-        // 应用非线性响应曲线，使小震动更细腻，大震动更强烈
         double responseCurve = 1.0 + 0.3 * Math.pow(shakeOffset.length() / maxAmplitude, 2);
 
         event.setYaw((float) (event.getYaw() + rotationOffset.x * 10.0 * responseCurve));
@@ -147,27 +139,20 @@ public class ClientShakeHandler {
             return 0;
         }
 
-        // 改进的包络函数
         float baseAmplitude;
         if (elapsed < riseTime) {
-            // 使用S形曲线实现更自然的上升
             float progress = (float) elapsed / riseTime;
             baseAmplitude = maxAmplitude * (float) (0.5 - 0.5 * Math.cos(Math.PI * progress));
         } else if (elapsed < duration - fallTime) {
             baseAmplitude = maxAmplitude;
         } else {
-            // 使用改进的衰减模型，模拟真实震动能量的消散
             int fallStart = duration - fallTime;
             float fallProgress = (float) (elapsed - fallStart) / fallTime;
-            // 指数衰减结合S形曲线，使结束更自然
             baseAmplitude = maxAmplitude * (float) (Math.exp(-4 * fallProgress) * (0.5 + 0.5 * Math.cos(Math.PI * fallProgress)));
         }
 
-        // 添加基于物理的随机扰动
         if (baseAmplitude > 0) {
-            // 使用频率相关的噪声，模拟真实震动的高频成分
             float noiseAmplitude = 0.08f * baseAmplitude;
-            // 多频率噪声叠加
             float noise1 = (float) improvedNoise(elapsed * 0.01) * noiseAmplitude;
             float noise2 = (float) improvedNoise(elapsed * 0.03 + 100) * noiseAmplitude * 0.6f;
             float noise3 = (float) improvedNoise(elapsed * 0.1 + 200) * noiseAmplitude * 0.3f;
@@ -182,14 +167,11 @@ public class ClientShakeHandler {
      * 改进的Perlin噪声函数
      */
     private static double improvedNoise(double x) {
-        // 使用整数部分进行哈希
         int X = (int) Math.floor(x) & 255;
         x -= Math.floor(x);
 
-        // 计算渐变函数
         double u = fade(x);
 
-        // 使用更复杂的哈希函数生成更自然的梯度
         int h1 = hash(X);
         int h2 = hash(X+1);
 
@@ -208,20 +190,17 @@ public class ClientShakeHandler {
     }
 
     private static double fade(double t) {
-        // 改进的渐变曲线，更平滑
         return t * t * t * (t * (t * 6 - 15) + 10);
     }
 
     private static double lerp(double t, double a, double b) {
-        // 线性插值
         return a + t * (b - a);
     }
 
     private static double grad(int hash, double x) {
-        // 使用哈希值的低位字节确定梯度
         int h = hash & 15;
-        double grad = 1.0 + (h & 7); // 梯度值1-8
-        if ((h & 8) != 0) grad = -grad; // 随机一半是负数
+        double grad = 1.0 + (h & 7);
+        if ((h & 8) != 0) grad = -grad;
         return grad * x;
     }
 }

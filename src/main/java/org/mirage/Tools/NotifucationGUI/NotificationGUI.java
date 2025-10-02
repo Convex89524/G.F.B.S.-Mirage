@@ -44,7 +44,6 @@ public class NotificationGUI {
         Component titleComponent = Component.literal(title);
         Component messageComponent = Component.literal(message);
 
-        // 检查是否已经存在相同的通知（在时间窗口内）
         long currentTime = System.currentTimeMillis();
         for (Notification notification : notifications) {
             if (notification.isDuplicate(titleComponent, messageComponent, DUPLICATE_CHECK_TIME_WINDOW, currentTime)) {
@@ -52,14 +51,12 @@ public class NotificationGUI {
             }
         }
 
-        // 传递显示时间给Notification
         Notification newNotification = new Notification(titleComponent, messageComponent, currentTime, displayTime);
         notifications.add(newNotification);
         updateNotificationPositions();
     }
 
     public static void render(GuiGraphics guiGraphics, float partialTicks) {
-        // 从后向前渲染，确保新的弹窗在上面
         for (int i = notifications.size() - 1; i >= 0; i--) {
             Notification notification = notifications.get(i);
             if (!notification.isFinished()) {
@@ -76,7 +73,6 @@ public class NotificationGUI {
 
             if (notification.isFinished()) {
                 iterator.remove();
-                // 移除完成后更新剩余通知的位置
                 updateNotificationPositions();
             }
         }
@@ -86,7 +82,6 @@ public class NotificationGUI {
         int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
         int notificationHeight = (int) ((screenHeight / 5) * SCALE); // 应用缩放因子
 
-        // 计算每个通知的目标Y位置
         for (int i = 0; i < notifications.size(); i++) {
             Notification notification = notifications.get(i);
             int targetY = screenHeight - notificationHeight - MARGIN -
@@ -118,16 +113,14 @@ public class NotificationGUI {
             this.creationTime = creationTime;
             this.displayTime = displayTime;
 
-            // 计算弹窗尺寸（基于屏幕高度），应用缩放因子
             int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-            this.height = (int) ((screenHeight / 5) * SCALE); // 高度为屏幕高度的1/5再缩小25%
+            this.height = (int) ((screenHeight / 5) * SCALE);
             this.width = (int) (height * WIDTH_HEIGHT_RATIO);
 
-            // 计算目标位置（右下角）
             int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
             this.targetX = screenWidth - width - MARGIN;
             this.targetY = screenHeight - height - MARGIN;
-            this.currentY = screenHeight; // 初始位置在屏幕下方
+            this.currentY = screenHeight;
 
             this.animationTimer = 0;
             this.displayTimer = 0;
@@ -162,37 +155,31 @@ public class NotificationGUI {
         public void render(GuiGraphics guiGraphics, float partialTicks) {
             float progress = getAnimationProgress(partialTicks);
 
-            // 添加平滑处理：使用线性插值减少跳跃
             float smoothedProgress = Mth.lerp(0.5f, prevProgress, progress);
             prevProgress = progress;
 
             int currentX = calculateCurrentX(smoothedProgress);
-            int renderY = (int) currentY; // 使用平滑后的Y坐标
+            int renderY = (int) currentY;
 
-            // 计算实际透明度（考虑alpha值）
             int bgAlpha = (int) (0xAA * alpha);
             int titleAlpha = (int) (0xFF * alpha);
             int messageAlpha = (int) (0xCC * alpha);
 
-            // 绘制背景
             guiGraphics.fill(currentX, renderY,
                     currentX + width, renderY + height,
-                    (bgAlpha << 24) | 0x000000); // 带透明度的黑色背景
+                    (bgAlpha << 24) | 0x000000);
 
-            // 计算标题和信息区域
             int titleHeight = height / 7;
             int messageHeight = height - titleHeight;
 
-            // 绘制标题
             guiGraphics.drawCenteredString(
                     Minecraft.getInstance().font,
                     title,
                     currentX + width / 2,
                     renderY + (titleHeight - Minecraft.getInstance().font.lineHeight) / 2,
-                    (titleAlpha << 24) | 0xFFFFFF // 带透明度的白色
+                    (titleAlpha << 24) | 0xFFFFFF
             );
 
-            // 绘制信息（自动换行）
             List<FormattedCharSequence> lines = Minecraft.getInstance().font.split(
                     message,
                     width - 2 * PADDING
@@ -208,7 +195,7 @@ public class NotificationGUI {
                         lines.get(i),
                         currentX + PADDING,
                         renderY + titleHeight + PADDING + i * lineHeight,
-                        (messageAlpha << 24) | 0xCCCCCC // 带透明度的浅灰色
+                        (messageAlpha << 24) | 0xCCCCCC
                 );
             }
         }
@@ -225,21 +212,16 @@ public class NotificationGUI {
                 return 1.0f;
             }
 
-            // 使用更平滑的缓动函数
             float t = Mth.clamp(currentTime / totalTime, 0, 1);
-            // 使用更平滑的五次方缓动函数
-            return t * t * t * (t * (t * 6 - 15) + 10); // Perlin平滑步进函数
+            return t * t * t * (t * (t * 6 - 15) + 10);
         }
 
         private int calculateCurrentX(float progress) {
             int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 
-            // 统一使用进度值计算位置，避免整数计算导致的跳跃
             if (isShowing) {
-                // 从右侧不可见区域滑入
                 return (int) (screenWidth + (targetX - screenWidth) * progress);
             } else if (isHiding) {
-                // 隐藏时不再移动，只改变透明度
                 return targetX;
             }
             return targetX;
@@ -249,7 +231,6 @@ public class NotificationGUI {
             return isHiding && animationTimer <= 0;
         }
 
-        // 检查是否是重复通知
         public boolean isDuplicate(Component otherTitle, Component otherMessage, long timeWindow, long currentTime) {
             return this.title.equals(otherTitle) &&
                     this.message.equals(otherMessage) &&

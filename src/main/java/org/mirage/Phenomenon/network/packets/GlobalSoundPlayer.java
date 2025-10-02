@@ -73,7 +73,6 @@ public class GlobalSoundPlayer {
         ctx.get().setPacketHandled(true);
     }
 
-    // 新增SoundSource参数以指定声音类型
     public static void playToAllClients(ServerPlayer sender, ResourceLocation soundId, SoundSource soundSource, float volume) {
         CHANNEL.send(PacketDistributor.ALL.noArg(), new SoundPacket(soundId, soundSource, volume));
     }

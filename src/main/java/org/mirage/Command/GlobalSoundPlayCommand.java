@@ -50,11 +50,9 @@ import java.util.stream.Collectors;
 
 public class GlobalSoundPlayCommand {
 
-    // 创建一个更智能的建议提供器
     private static final SuggestionProvider<CommandSourceStack> SOUND_SUGGESTIONS =
             (context, builder) -> getSoundSuggestions(context, builder);
 
-    // 创建SoundSource的建议提供器
     private static final SuggestionProvider<CommandSourceStack> SOUND_SOURCE_SUGGESTIONS =
             (context, builder) -> SharedSuggestionProvider.suggest(
                     Arrays.stream(SoundSource.values())
@@ -84,14 +82,13 @@ public class GlobalSoundPlayCommand {
         return SharedSuggestionProvider.suggest(suggestions, builder);
     }
 
-    // 计算声音ID的相关性分数
     private static int calculateRelevance(ResourceLocation soundId, String input) {
         String idStr = soundId.toString().toLowerCase(Locale.ROOT);
         String namespace = soundId.getNamespace().toLowerCase(Locale.ROOT);
         String path = soundId.getPath().toLowerCase(Locale.ROOT);
 
         if (input.isEmpty()) {
-            return 1; // 默认相关性
+            return 1;
         }
 
         // 完全匹配得最高分
@@ -119,7 +116,7 @@ public class GlobalSoundPlayCommand {
             return 60;
         }
 
-        // 单词开头匹配（以下划线或点分隔）
+        // 单词开头匹配
         if (Arrays.stream(path.split("[_.]"))
                 .anyMatch(part -> part.startsWith(input))) {
             return 50;
@@ -128,7 +125,6 @@ public class GlobalSoundPlayCommand {
         return 0;
     }
 
-    // 内部类用于存储建议和相关性分数
     private static class SoundSuggestion {
         public final ResourceLocation id;
         public final int relevance;
@@ -139,7 +135,6 @@ public class GlobalSoundPlayCommand {
         }
     }
 
-    // 注册网络消息
     public static void registerNetworkMessages() {
         int packetId = 1;
         GlobalSoundPlayer.CHANNEL.registerMessage(
@@ -151,19 +146,16 @@ public class GlobalSoundPlayCommand {
         );
     }
 
-    // 处理声音命令包（服务端侧）
     private static void handleSoundCommand(SoundCommandPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
-                // 使用新的方法签名，包含SoundSource参数
                 GlobalSoundPlayer.playToAllClients(player, packet.soundId, packet.soundSource, packet.volume);
             }
         });
         ctx.get().setPacketHandled(true);
     }
 
-    // 服务端命令注册
     @Mod.EventBusSubscriber
     public static class ServerCommandHandler {
         @SubscribeEvent
@@ -272,7 +264,6 @@ public class GlobalSoundPlayCommand {
         }
     }
 
-    // 声音命令网络包数据类
     public static class SoundCommandPacket {
         public final ResourceLocation soundId;
         public final SoundSource soundSource; // 新增字段

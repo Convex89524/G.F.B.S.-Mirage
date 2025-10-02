@@ -167,7 +167,6 @@ public class ScriptExecutor {
     private static boolean processLine(String line, CommandSourceStack source) {
         String processedLine = replaceVariables(line);
 
-        // 检查是否是set命令（变量赋值）
         Matcher setMatcher = SET_COMMAND_PATTERN.matcher(processedLine);
         if (setMatcher.matches()) {
             String varName = setMatcher.group(1);
@@ -176,7 +175,6 @@ public class ScriptExecutor {
             return true;
         }
 
-        // 检查是否是if条件判断
         Matcher ifMatcher = IF_COMMAND_PATTERN.matcher(processedLine);
         if (ifMatcher.matches()) {
             String condition = ifMatcher.group(1);
@@ -185,7 +183,6 @@ public class ScriptExecutor {
             return true;
         }
 
-        // 检查是否是else命令
         if (processedLine.equals("else")) {
             if (!conditionStack.isEmpty()) {
                 boolean previousCondition = conditionStack.pop();
@@ -194,7 +191,6 @@ public class ScriptExecutor {
             return true;
         }
 
-        // 检查是否是endif命令
         if (processedLine.equals("endif")) {
             if (!conditionStack.isEmpty()) {
                 conditionStack.pop();
@@ -202,7 +198,6 @@ public class ScriptExecutor {
             return true;
         }
 
-        // 检查是否是loop命令
         Matcher loopMatcher = LOOP_COMMAND_PATTERN.matcher(processedLine);
         if (loopMatcher.matches()) {
             int count = Integer.parseInt(loopMatcher.group(1));
@@ -211,13 +206,10 @@ public class ScriptExecutor {
             return true;
         }
 
-        // 检查是否是endloop命令
         if (processedLine.equals("endloop")) {
-            // 不需要做任何事情，循环已经在主逻辑中处理
             return true;
         }
 
-        // 检查是否是delay命令
         Matcher delayMatcher = DELAY_COMMAND_PATTERN.matcher(processedLine);
         if (delayMatcher.matches()) {
             int delay = Integer.parseInt(delayMatcher.group(1));
@@ -225,13 +217,11 @@ public class ScriptExecutor {
             return true;
         }
 
-        // 如果是循环体内的命令，添加到当前循环
         if (!loopStack.isEmpty() && loopLineStack.size() > 0) {
             loopLineStack.peek().add(processedLine);
             return true;
         }
 
-        // 普通命令执行
         return executeCommand(processedLine, source);
     }
 

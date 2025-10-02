@@ -218,6 +218,16 @@
     "sounds": ["mirage_gfbs:music/new_p2_m"],
     "stream": true
   },
+  "music.p1_m": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:music/p1_m"],
+    "stream": true
+  },
+  "music.p2_m": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:music/p2_m"],
+    "stream": true
+  },
   "music.pi_ok_m": {
     "category": "music",
     "sounds": ["mirage_gfbs:music/pi_ok_m"],
@@ -266,6 +276,16 @@
   "music.wuhu": {
     "category": "music",
     "sounds": ["mirage_gfbs:music/wuhu"],
+    "stream": true
+  },
+  "music.bms_wagh_m": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:music/bms_wagh_m"],
+    "stream": true
+  },
+  "music.goc_rc_m": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:music/goc_rc_m"],
     "stream": true
   },
   "surroundings.airlock": {

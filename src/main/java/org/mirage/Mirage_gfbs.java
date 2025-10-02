@@ -1,3 +1,21 @@
+/**
+ * G.F.B.S. Mirage (mirage_gfbs) - A Minecraft Mod
+ * Copyright (C) 2025-2029 Convex89524
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.mirage;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -38,6 +56,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import org.mirage.Command.*;
+import org.mirage.Objects.Structure.Registrar;
+import org.mirage.Objects.blocks.BlockRegistration;
+import org.mirage.Objects.items.ItemRegistration;
 import org.mirage.Phenomenon.CameraShake.CameraShakeModule;
 import org.mirage.Phenomenon.network.Notification.PacketHandler;
 import org.mirage.Phenomenon.network.packets.GlobalSoundPlayer;
@@ -70,6 +91,10 @@ public class Mirage_gfbs {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         LOGGER.info("MOD "+MODID+" INIT...");
+
+        BlockRegistration.init();
+        ItemRegistration.init();
+        Registrar.init();
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -111,8 +136,9 @@ public class Mirage_gfbs {
             LOGGER.info("Registered notification network channel");
         });
 
+        Registrar.onSetup(event);
+
         event.enqueueWork(() -> {
-            // 注册游戏规则
             RULE_MIRAGE_NOTIFICATION_SHOW_TIME = GameRules.register(
                     "mirageNotificationShowTime",
                     GameRules.Category.MISC,
@@ -148,6 +174,7 @@ public class Mirage_gfbs {
 
         UploadScriptCommand.register(event.getDispatcher());
         CallScriptCommand.register(event.getDispatcher());
+        DeleteScriptCommand.register(event.getDispatcher());
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

@@ -16,21 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.mirage.Phenomenon.event;
+package org.mirage.Objects.blocks;
 
-import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.world.level.block.Block;
+import net.minecraftforge.registries.RegistryObject;
 
-import static org.mirage.Mirage_gfbs.MODID;
+import static org.mirage.Mirage_gfbs.BLOCKS;
 
-@Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class CreateCommand {
-    @SubscribeEvent
-    public static void onRegisterCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        BlackHoleCommand.register(dispatcher);
-    }
+public class BlockRegistration {
+
+    public static void init(){}
 }

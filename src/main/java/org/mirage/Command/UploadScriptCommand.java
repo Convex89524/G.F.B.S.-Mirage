@@ -1,3 +1,21 @@
+/**
+ * G.F.B.S. Mirage (mirage_gfbs) - A Minecraft Mod
+ * Copyright (C) 2025-2029 Convex89524
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.mirage.Command;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -5,10 +23,10 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.server.command.EnumArgument;
-import org.mirage.Phenomenon.network.ScriptSystem.NetworkHandler;
-import org.mirage.Phenomenon.network.ScriptSystem.OpenFileChooserPacket;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
+import org.mirage.Client.ScriptSystem.ClientHandler;
 
 import java.util.function.Supplier;
 
@@ -17,19 +35,20 @@ public class UploadScriptCommand {
         dispatcher.register(Commands.literal("MirageUploadedScript")
                 .requires(source -> source.hasPermission(3)) // OP等级3+
                 .then(Commands.argument("script_id", StringArgumentType.string())
-                        .executes(context -> {
-                            String scriptId = StringArgumentType.getString(context, "script_id");
-                            ServerPlayer player = context.getSource().getPlayerOrException();
+                        .then(Commands.argument("file_path", StringArgumentType.greedyString())
+                                .executes(context -> {
+                                    String scriptId = StringArgumentType.getString(context, "script_id");
+                                    String filePath = StringArgumentType.getString(context, "file_path");
+                                    CommandSourceStack source = context.getSource();
 
-                            // 打开文件选择器
-                            NetworkHandler.sendToClient(new OpenFileChooserPacket(scriptId), player);
+                                    // 在客户端执行文件上传
+                                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                                        ClientHandler.uploadScriptFromPath(scriptId, filePath, source);
+                                    });
 
-                            context.getSource().sendSuccess(
-                                    (Supplier<Component>) Component.literal("请选择要上传的脚本文件..."),
-                                    true
-                            );
-                            return 1;
-                        })
+                                    return 1;
+                                })
+                        )
                 )
         );
     }

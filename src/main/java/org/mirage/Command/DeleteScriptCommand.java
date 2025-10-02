@@ -23,35 +23,53 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import org.mirage.Phenomenon.ScriptSystem.ScriptExecutor;
+import org.mirage.Mirage_gfbs;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Supplier;
 
-public class CallScriptCommand {
+public class DeleteScriptCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("MirageCallScript")
-                .requires(source -> source.hasPermission(2)) // OP等级3+
+        dispatcher.register(Commands.literal("MirageDeleteScript")
+                .requires(source -> source.hasPermission(3)) // OP等级3+
                 .then(Commands.argument("script_id", StringArgumentType.string())
                         .executes(context -> {
                             String scriptId = StringArgumentType.getString(context, "script_id");
                             CommandSourceStack source = context.getSource();
 
-                            // 执行脚本
-                            boolean success = ScriptExecutor.executeScript(scriptId, source);
+                            // 删除脚本文件
+                            boolean success = deleteScript(scriptId, source);
 
                             if (success) {
                                 source.sendSuccess(
-                                        (Supplier<Component>) Component.literal("成功执行脚本: " + scriptId),
+                                        (Supplier<Component>) Component.literal("成功删除脚本: " + scriptId),
                                         true
                                 );
                             } else {
                                 source.sendFailure(
-                                        Component.literal("执行脚本失败: " + scriptId)
+                                        Component.literal("删除脚本失败: " + scriptId + " (脚本可能不存在)")
                                 );
                             }
                             return success ? 1 : 0;
                         })
                 )
         );
+    }
+
+    private static boolean deleteScript(String scriptId, CommandSourceStack source) {
+        try {
+            Path scriptPath = Mirage_gfbs.SCRIPTS_DIR.resolve(scriptId + ".txt");
+
+            if (!Files.exists(scriptPath)) {
+                return false;
+            }
+
+            Files.delete(scriptPath);
+            return true;
+        } catch (Exception e) {
+            source.sendFailure(Component.literal("删除脚本时出错: " + e.getMessage()));
+            return false;
+        }
     }
 }

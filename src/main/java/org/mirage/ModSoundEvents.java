@@ -32,12 +32,10 @@ public class ModSoundEvents {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
             DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Mirage_gfbs.MODID);
 
-    // 使用映射表存储所有声音事件
     public static final Map<String, RegistryObject<SoundEvent>> SOUND_EVENTS_MAP = new HashMap<>();
 
-    // 初始化所有声音事件
     static {
-        // 警报声音
+        // 警报
         registerToMap("alarm.c7_noboom_a");
         registerToMap("alarm.emergency_a");
         registerToMap("alarm.meltdown_a");
@@ -45,7 +43,7 @@ public class ModSoundEvents {
         registerToMap("alarm.overpressure_a");
         registerToMap("alarm.war_a");
 
-        // 爆炸声音
+        // 爆炸
         registerToMap("boom.boom2_b");
         registerToMap("boom.boom3_b");
         registerToMap("boom.boom4_b");
@@ -55,7 +53,7 @@ public class ModSoundEvents {
         registerToMap("boom.boom_b");
         registerToMap("boom.dmr_b");
 
-        // FAAS声音
+        // F.A.A.S.
         registerToMap("faas.dmr_e_s_s");
         registerToMap("faas.dmr_e_s_t");
         registerToMap("faas.dmr_f_e");
@@ -84,7 +82,7 @@ public class ModSoundEvents {
         registerToMap("faas.m_s_f");
         registerToMap("faas.startup_button_nolock_open");
 
-        // 人类声音
+        // 广播
         registerToMap("human.shift_h");
 
         // 音乐
@@ -109,7 +107,7 @@ public class ModSoundEvents {
         registerToMap("music.unknown_m");
         registerToMap("music.wuhu");
 
-        // 环境声音
+        // 环境
         registerToMap("surroundings.airlock");
         registerToMap("surroundings.alpha_pumo_startup2");
         registerToMap("surroundings.alpha_pump_closeing");
@@ -129,19 +127,17 @@ public class ModSoundEvents {
         registerToMap("surroundings.reactor");
         registerToMap("surroundings.water");
 
-        // 弹头声音
+        // 弹头
         registerToMap("war.war");
         registerToMap("war.war_yes");
         registerToMap("war.main90");
     }
 
-    // 辅助方法：注册声音事件到映射表
     private static void registerToMap(String name) {
         SOUND_EVENTS_MAP.put(name, SOUND_EVENTS.register(name, () ->
                 SoundEvent.createVariableRangeEvent(new ResourceLocation(Mirage_gfbs.MODID, name))));
     }
 
-    // 获取声音事件的方法
     public static RegistryObject<SoundEvent> getSoundEvent(String name) {
         return SOUND_EVENTS_MAP.get(name);
     }

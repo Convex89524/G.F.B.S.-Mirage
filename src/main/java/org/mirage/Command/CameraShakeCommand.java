@@ -66,7 +66,6 @@ public class CameraShakeCommand {
 
     private static int executeShakeCommand(CommandContext<CommandSourceStack> context) {
         try {
-            // 获取命令参数
             Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, "targets");
             float speed = FloatArgumentType.getFloat(context, "speed");
             float maxAmplitude = FloatArgumentType.getFloat(context, "maxAmplitude");
@@ -74,7 +73,6 @@ public class CameraShakeCommand {
             int riseTime = IntegerArgumentType.getInteger(context, "riseTime");
             int fallTime = IntegerArgumentType.getInteger(context, "fallTime");
 
-            // 验证参数有效性
             if (riseTime + fallTime > duration) {
                 context.getSource().sendFailure(
                         net.minecraft.network.chat.Component.literal("上升时间和下降时间之和不能大于总持续时间")
@@ -82,12 +80,10 @@ public class CameraShakeCommand {
                 return 0;
             }
 
-            // 向每个目标玩家发送震动指令
             for (ServerPlayer player : targets) {
                 CameraShakeModule.sendShakeCommand(player, speed, maxAmplitude, duration, riseTime, fallTime);
             }
 
-            // 发送成功反馈
             if (targets.size() == 1) {
                 Mirage_gfbs.LOGGER.debug("已向 " + targets.iterator().next().getDisplayName().getString() + " 发送相机震动指令");
             } else {

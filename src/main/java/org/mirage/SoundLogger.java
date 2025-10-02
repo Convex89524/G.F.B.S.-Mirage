@@ -33,7 +33,6 @@ import java.util.Collection;
 public class SoundLogger {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    // 指定要记录的 MOD ID
     private static final String TARGET_MOD_ID = Mirage_gfbs.MODID;
 
     @SubscribeEvent
@@ -56,7 +55,7 @@ public class SoundLogger {
         ).keySet();
 
         resources.forEach(loc -> {
-            String path = loc.getPath(); // 完整路径如 "sounds/ambient/cave.ogg"
+            String path = loc.getPath();
             LOGGER.info("Found .ogg file: {}:{}", loc.getNamespace(), path);
         });
     }

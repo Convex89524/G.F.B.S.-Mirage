@@ -44,7 +44,6 @@ public class NotificationCommand {
                                                     String title = StringArgumentType.getString(context, "title");
                                                     String message = StringArgumentType.getString(context, "message");
 
-                                                    // 从服务端获取游戏规则值
                                                     int displayTime = IntegerArgumentType.getInteger(context, "tick");
 
                                                     for (ServerPlayer player : targets) {

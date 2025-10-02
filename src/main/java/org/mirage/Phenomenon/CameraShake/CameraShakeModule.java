@@ -57,16 +57,14 @@ public class CameraShakeModule {
         CHANNEL.registerMessage(1, ShakeStopPacket.class,
                 ShakeStopPacket::encode,
                 ShakeStopPacket::new,
-                CameraShakeModule::handleShakeStopPacket); // 新增注册
+                CameraShakeModule::handleShakeStopPacket);
     }
 
-    // 服务端发送震动指令
     public static void sendShakeCommand(ServerPlayer player, float speed, float maxAmplitude, int duration, int riseTime, int fallTime) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
                 new ShakePacket(speed, maxAmplitude, duration, riseTime, fallTime));
     }
 
-    // 客户端处理网络包
     private static void handleShakePacket(ShakePacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ShakeManager.startShake(packet.speed, packet.maxAmplitude,
@@ -92,7 +90,6 @@ public class CameraShakeModule {
         public void encode(FriendlyByteBuf buf) {}
     }
 
-    // 震动数据包
     public static class ShakePacket {
         public final float speed;
         public final float maxAmplitude;

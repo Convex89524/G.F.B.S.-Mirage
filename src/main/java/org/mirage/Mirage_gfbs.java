@@ -189,32 +189,6 @@ public class Mirage_gfbs {
         }
     }
 
-    @Mod.EventBusSubscriber(
-            modid = Mirage_gfbs.MODID,
-            bus = Mod.EventBusSubscriber.Bus.MOD,
-            value = Dist.CLIENT
-    )
-    public class ShaderRegistry {
-        public static ShaderInstance LENSING_SHADER_INSTANCE;
-
-        @SubscribeEvent
-        public static void registerShaders(RegisterShadersEvent event) {
-            try {
-                event.registerShader(
-                        new ShaderInstance(
-                                event.getResourceProvider(),
-                                new ResourceLocation(Mirage_gfbs.MODID, "lensing"),
-                                DefaultVertexFormat.POSITION_TEX),
-                        shader -> {
-                            LENSING_SHADER_INSTANCE = shader;
-                        }
-                );
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to load lensing shader", e);
-            }
-        }
-    }
-
     private void createscriptdir() {
         File dir = SCRIPTS_DIR.toFile();
         if (!dir.exists()) {

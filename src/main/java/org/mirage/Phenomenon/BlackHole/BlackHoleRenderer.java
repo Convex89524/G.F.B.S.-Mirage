@@ -63,7 +63,7 @@ public class BlackHoleRenderer {
 
         // 在所有内容渲染完成后应用空间扭曲效果
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
-            applyLensingEffect(event, blackHoles);
+            //applyLensingEffect(event, blackHoles);
         }
     }
 
@@ -164,39 +164,39 @@ public class BlackHoleRenderer {
                 .endVertex();
     }
 
-    private static void applyLensingEffect(RenderLevelStageEvent event, List<BlackHole> blackHoles) {
-        if (blackHoles.isEmpty()) return;
-
-        Minecraft minecraft = Minecraft.getInstance();
-
-        // 直接使用已注册的着色器实例
-        ShaderInstance shaderInstance = Mirage_gfbs.ShaderRegistry.LENSING_SHADER_INSTANCE;
-        if (shaderInstance == null) {
-            Mirage_gfbs.LOGGER.error("Lensing shader not initialized");
-            return;
-        }
-
-        // 保存当前渲染状态
-        minecraft.getMainRenderTarget().bindWrite(false);
-
-        try {
-            // 设置着色器参数
-            setShaderUniforms(shaderInstance, minecraft, event, blackHoles);
-
-            // 应用着色器
-            shaderInstance.apply();
-
-            // 渲染全屏四边形
-            renderFullscreenQuad();
-
-        } catch (Exception e) {
-            Mirage_gfbs.LOGGER.error("Failed to apply lensing effect: {}", e.getMessage());
-        } finally {
-            shaderInstance.clear();
-            // 恢复默认着色器
-            minecraft.gameRenderer.blitShader.clear();
-        }
-    }
+//    private static void applyLensingEffect(RenderLevelStageEvent event, List<BlackHole> blackHoles) {
+//        if (blackHoles.isEmpty()) return;
+//
+//        Minecraft minecraft = Minecraft.getInstance();
+//
+//        // 直接使用已注册的着色器实例
+//        ShaderInstance shaderInstance = Mirage_gfbs.ShaderRegistry.LENSING_SHADER_INSTANCE;
+//        if (shaderInstance == null) {
+//            Mirage_gfbs.LOGGER.error("Lensing shader not initialized");
+//            return;
+//        }
+//
+//        // 保存当前渲染状态
+//        minecraft.getMainRenderTarget().bindWrite(false);
+//
+//        try {
+//            // 设置着色器参数
+//            setShaderUniforms(shaderInstance, minecraft, event, blackHoles);
+//
+//            // 应用着色器
+//            shaderInstance.apply();
+//
+//            // 渲染全屏四边形
+//            renderFullscreenQuad();
+//
+//        } catch (Exception e) {
+//            Mirage_gfbs.LOGGER.error("Failed to apply lensing effect: {}", e.getMessage());
+//        } finally {
+//            shaderInstance.clear();
+//            // 恢复默认着色器
+//            minecraft.gameRenderer.blitShader.clear();
+//        }
+//    }
 
     private static void setShaderUniforms(ShaderInstance shaderInstance, Minecraft minecraft,
                                           RenderLevelStageEvent event, List<BlackHole> blackHoles) {

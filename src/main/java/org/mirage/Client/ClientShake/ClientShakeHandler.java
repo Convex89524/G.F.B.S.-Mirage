@@ -1,21 +1,3 @@
-/**
- * G.F.B.S. Mirage (mirage_gfbs) - A Minecraft Mod
- * Copyright (C) 2025-2029 Convex89524
-
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package org.mirage.Client.ClientShake;
 
 import net.minecraft.world.phys.Vec3;
@@ -41,12 +23,12 @@ public class ClientShakeHandler {
     private static Vec3 currentShakeDirection = Vec3.ZERO;
     private static Vec3 targetShakeDirection = Vec3.ZERO;
     private static long lastDirectionChangeTime = 0;
-    private static final long DIRECTION_CHANGE_INTERVAL = 100;
-    private static final double DIRECTION_SMOOTHING_FACTOR = 0.15; // 方向平滑过渡因子
+    private static final long DIRECTION_CHANGE_INTERVAL = 80; // 略微减少方向变化间隔
+    private static final double DIRECTION_SMOOTHING_FACTOR = 0.12; // 调整平滑过渡因子
 
-    /**
-     * 计算当前时间的震动偏移量
-     */
+    private static double lastNoiseValue = 0;
+    private static double noiseVelocity = 0;
+
     private static Vec3 calculateShakeOffset() {
         if (startTime == 0) return Vec3.ZERO;
 
@@ -59,35 +41,41 @@ public class ClientShakeHandler {
         currentAmplitude = calculateCurrentAmplitude(elapsed);
         if (currentAmplitude <= 0) return Vec3.ZERO;
 
-        double xOffset = Math.sin(elapsed * speed / 1000.0) * currentAmplitude;
-        double yOffset = Math.sin(elapsed * speed / 1000.0 * 1.17 + 0.5) * currentAmplitude; // 不同频率和相位
-        double zOffset = Math.sin(elapsed * speed / 1000.0 * 0.83 + 1.2) * currentAmplitude; // 不同频率和相位
+        double timeFactor = elapsed * speed / 1000.0;
+
+        double xOffset = Math.sin(timeFactor) * currentAmplitude;
+        double yOffset = Math.sin(timeFactor * 1.17 + 0.5) * currentAmplitude;
+        double zOffset = Math.sin(timeFactor * 0.83 + 1.2) * currentAmplitude;
+
+        double harmonicFactor = 2.3;
+        xOffset += Math.sin(timeFactor * harmonicFactor) * currentAmplitude * 0.3;
+        yOffset += Math.sin(timeFactor * harmonicFactor * 1.17 + 1.7) * currentAmplitude * 0.3;
+        zOffset += Math.sin(timeFactor * harmonicFactor * 0.83 + 2.9) * currentAmplitude * 0.3;
 
         return new Vec3(xOffset, yOffset, zOffset);
     }
 
-    /**
-     * 重置震动状态
-     */
     public static void resetShake() {
         startTime = 0;
         currentAmplitude = 0;
         currentShakeDirection = Vec3.ZERO;
         targetShakeDirection = Vec3.ZERO;
+        lastNoiseValue = 0;
+        noiseVelocity = 0;
     }
 
-    /**
-     * 生成随机震动方向
-     */
     private static Vec3 generateRandomDirection() {
-        // 使用球坐标生成更均匀的随机方向
-        double theta = random.nextDouble() * Math.PI * 2;
-        double phi = Math.acos(2 * random.nextDouble() - 1);
-        double x = Math.sin(phi) * Math.cos(theta);
-        double y = Math.sin(phi) * Math.sin(theta);
-        double z = Math.cos(phi);
+        double x = random.nextGaussian() * 0.5;
+        double y = random.nextGaussian() * 0.5;
+        double z = random.nextGaussian() * 0.5;
 
-        return new Vec3(x, y, z).normalize();
+        Vec3 direction = new Vec3(x, y, z);
+        double length = direction.length();
+        if (length > 1e-5) {
+            direction = direction.scale(1.0 / length);
+        }
+
+        return direction;
     }
 
     @SubscribeEvent
@@ -98,42 +86,33 @@ public class ClientShakeHandler {
         long currentTime = System.currentTimeMillis();
 
         if (currentTime - lastDirectionChangeTime > DIRECTION_CHANGE_INTERVAL) {
-            targetShakeDirection = generateRandomDirection();
+            double changeIntensity = 0.5 + 0.5 * (currentAmplitude / maxAmplitude);
+            targetShakeDirection = targetShakeDirection.scale(1.0 - changeIntensity)
+                    .add(generateRandomDirection().scale(changeIntensity))
+                    .normalize();
             lastDirectionChangeTime = currentTime;
         }
 
-        if (!currentShakeDirection.equals(targetShakeDirection)) {
-            double dx = targetShakeDirection.x - currentShakeDirection.x;
-            double dy = targetShakeDirection.y - currentShakeDirection.y;
-            double dz = targetShakeDirection.z - currentShakeDirection.z;
-
-            currentShakeDirection = new Vec3(
-                    currentShakeDirection.x + dx * DIRECTION_SMOOTHING_FACTOR,
-                    currentShakeDirection.y + dy * DIRECTION_SMOOTHING_FACTOR,
-                    currentShakeDirection.z + dz * DIRECTION_SMOOTHING_FACTOR
-            ).normalize();
-        }
+        double smoothFactor = DIRECTION_SMOOTHING_FACTOR * (1.0 + 0.5 * (currentAmplitude / maxAmplitude));
+        Vec3 directionDiff = targetShakeDirection.subtract(currentShakeDirection);
+        currentShakeDirection = currentShakeDirection.add(directionDiff.scale(smoothFactor)).normalize();
 
         applyShakeToCamera(event, shakeOffset);
     }
 
-    /**
-     * 将震动效果应用到相机
-     */
     private static void applyShakeToCamera(ViewportEvent.ComputeCameraAngles event, Vec3 shakeOffset) {
+        double intensity = shakeOffset.length() / maxAmplitude;
+        double nonLinearity = 1.0 + 0.5 * intensity * intensity;
+
+        double dampingFactor = 0.7 + 0.3 * Math.exp(-intensity * 3.0);
+
         Vec3 rotationOffset = currentShakeDirection.scale(shakeOffset.length());
 
-        double responseCurve = 1.0 + 0.3 * Math.pow(shakeOffset.length() / maxAmplitude, 2);
-
-        event.setYaw((float) (event.getYaw() + rotationOffset.x * 10.0 * responseCurve));
-        event.setPitch((float) (event.getPitch() + rotationOffset.y * 5.0 * responseCurve));
-        event.setRoll((float) (event.getRoll() + rotationOffset.z * 3.0 * responseCurve));
+        event.setYaw((float) (event.getYaw() + rotationOffset.x * 12.0 * nonLinearity * dampingFactor));
+        event.setPitch((float) (event.getPitch() + rotationOffset.y * 7.0 * nonLinearity * dampingFactor));
+        event.setRoll((float) (event.getRoll() + rotationOffset.z * 4.0 * nonLinearity * dampingFactor));
     }
 
-    /**
-     * 根据经过时间计算当前振幅
-     * 使用改进的包络函数和物理真实的衰减模型
-     */
     private static float calculateCurrentAmplitude(long elapsed) {
         if (elapsed > duration) {
             return 0;
@@ -142,65 +121,61 @@ public class ClientShakeHandler {
         float baseAmplitude;
         if (elapsed < riseTime) {
             float progress = (float) elapsed / riseTime;
-            baseAmplitude = maxAmplitude * (float) (0.5 - 0.5 * Math.cos(Math.PI * progress));
+            baseAmplitude = maxAmplitude * (float) (1.0 - Math.cos(progress * Math.PI * 0.5));
         } else if (elapsed < duration - fallTime) {
             baseAmplitude = maxAmplitude;
         } else {
             int fallStart = duration - fallTime;
             float fallProgress = (float) (elapsed - fallStart) / fallTime;
-            baseAmplitude = maxAmplitude * (float) (Math.exp(-4 * fallProgress) * (0.5 + 0.5 * Math.cos(Math.PI * fallProgress)));
+            baseAmplitude = maxAmplitude * (float) Math.exp(-4.5 * fallProgress) *
+                    (float) (0.6 + 0.4 * Math.cos(fallProgress * Math.PI));
         }
 
         if (baseAmplitude > 0) {
-            float noiseAmplitude = 0.08f * baseAmplitude;
-            float noise1 = (float) improvedNoise(elapsed * 0.01) * noiseAmplitude;
-            float noise2 = (float) improvedNoise(elapsed * 0.03 + 100) * noiseAmplitude * 0.6f;
-            float noise3 = (float) improvedNoise(elapsed * 0.1 + 200) * noiseAmplitude * 0.3f;
+            float noiseAmplitude = 0.1f * baseAmplitude;
 
-            return Math.max(0, baseAmplitude + noise1 + noise2 + noise3);
+            float lowFreqNoise = (float) improvedNoise(elapsed * 0.002) * noiseAmplitude;
+            float midFreqNoise = (float) improvedNoise(elapsed * 0.015 + 100) * noiseAmplitude * 0.7f;
+            float highFreqNoise = (float) improvedNoise(elapsed * 0.06 + 200) * noiseAmplitude * 0.4f;
+
+            if (random.nextFloat() < 0.005f * (baseAmplitude / maxAmplitude)) {
+                float impulse = (random.nextFloat() * 2.0f - 1.0f) * noiseAmplitude * 1.5f;
+                lowFreqNoise += impulse;
+            }
+
+            return Math.max(0, baseAmplitude + lowFreqNoise + midFreqNoise + highFreqNoise);
         }
 
         return baseAmplitude;
     }
 
-    /**
-     * 改进的Perlin噪声函数
-     */
     private static double improvedNoise(double x) {
         int X = (int) Math.floor(x) & 255;
         x -= Math.floor(x);
 
-        double u = fade(x);
+        double u = x * x * x * (x * (x * 6 - 15) + 10);
 
-        int h1 = hash(X);
-        int h2 = hash(X+1);
+        double a = grad(hash(X), x);
+        double b = grad(hash(X+1), x-1);
 
-        double grad1 = grad(h1, x);
-        double grad2 = grad(h2, x-1);
-
-        return lerp(u, grad1, grad2);
+        return cubicInterpolate(a, b, u);
     }
 
-    /**
-     * 简单的哈希函数
-     */
+    private static double cubicInterpolate(double a, double b, double t) {
+        double t2 = t * t;
+        double t3 = t2 * t;
+        return (2 * t3 - 3 * t2 + 1) * a + (t3 - 2 * t2 + t) * (b - a);
+    }
+
     private static int hash(int n) {
         n = (n << 13) ^ n;
-        return (n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff;
-    }
-
-    private static double fade(double t) {
-        return t * t * t * (t * (t * 6 - 15) + 10);
-    }
-
-    private static double lerp(double t, double a, double b) {
-        return a + t * (b - a);
+        n = (n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff;
+        return n;
     }
 
     private static double grad(int hash, double x) {
         int h = hash & 15;
-        double grad = 1.0 + (h & 7);
-        if ((h & 8) != 0) grad = -grad;
-        return grad * x;
+        double[] gradients = {1, -1, 0.5, -0.5, 0.7071, -0.7071, 0.25, -0.25};
+        return gradients[h & 7] * x;
     }
 }

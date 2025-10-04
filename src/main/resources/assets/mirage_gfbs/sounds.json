@@ -157,20 +157,252 @@
   },
   "faas.m_s_f": {
     "category": "music",
-    "sounds": ["mirage_gfbs:faas/m_s_f"
-    ]
+    "sounds": ["mirage_gfbs:faas/m_s_f"]
   },
   "faas.startup_button_nolock_open": {
     "category": "music",
     "sounds": ["mirage_gfbs:faas/startup_button_nolock_open"]
   },
+  "human.dmr.e_r_t_p": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/dmr/e_r_t_p"]
+  },
+  "human.dmr.p2": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/dmr/p2"]
+  },
+  "human.dmr.p_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/dmr/p_r"]
+  },
+  "human.dmr.p_r2": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/dmr/p_r2"]
+  },
+  "human.dmr.s_p_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/dmr/s_p_r"]
+  },
+  "human.dmr.s_t_b_e_r_a": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/dmr/s_t_b_e_r_a"]
+  },
+  "human.dmr.t_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/dmr/t_r"]
+  },
+  "human.emergency.c_r_p_e": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/emergency/c_r_p_e"]
+  },
+  "human.emergency.e_e_l": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/emergency/e_e_l"]
+  },
+  "human.emergency.p_e": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/emergency/p_e"]
+  },
+  "human.evacuation.c_t_t_b_f_c": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/evacuation/c_t_t_b_f_c"]
+  },
+  "human.evacuation.d_p_t_a_a": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/evacuation/d_p_t_a_a"]
+  },
+  "human.evacuation.d_p_t_c_s": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/evacuation/d_p_t_c_s"]
+  },
+  "human.evacuation.d_w_t_t_c_s": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/evacuation/d_w_t_t_c_s"]
+  },
+  "human.evacuation.m_t_a_p_s": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/evacuation/m_t_a_p_s"]
+  },
+  "human.evacuation.p_p_a": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/evacuation/p_p_a"]
+  },
+  "human.evacuation.r_t": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/evacuation/r_t"]
+  },
+  "human.evacuation.s_p_t_c_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/evacuation/s_p_t_c_r"]
+  },
+  "human.nonsense.b_c_o_m_y_v": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/b_c_o_m_y_v"]
+  },
+  "human.nonsense.b_d_g_o": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/b_d_g_o"]
+  },
+  "human.nonsense.c_d_o_w_h": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/c_d_o_w_h"]
+  },
+  "human.nonsense.c_s_w_h_a_t": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/c_s_w_h_a_t"]
+  },
+  "human.nonsense.c_u_s_r_i": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/c_u_s_r_i"]
+  },
+  "human.nonsense.d_n_i_t_c": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/d_n_i_t_c"]
+  },
+  "human.nonsense.e_p_t_s_i_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/e_p_t_s_i_r"]
+  },
+  "human.nonsense.f_d_w_i_y_k": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/f_d_w_i_y_k"]
+  },
+  "human.nonsense.f_o_l_y_s": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/f_o_l_y_s"]
+  },
+  "human.nonsense.g_a_r_t_d": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/g_a_r_t_d"]
+  },
+  "human.nonsense.i_a_a": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/i_a_a"]
+  },
+  "human.nonsense.i_c_c": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/i_c_c"]
+  },
+  "human.nonsense.l_e_b_s_e": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/l_e_b_s_e"]
+  },
+  "human.nonsense.m_a_m_l": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/m_a_m_l"]
+  },
+  "human.nonsense.o_c_l_f": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/o_c_l_f"]
+  },
+  "human.nonsense.p_d_c_w_t": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/p_d_c_w_t"]
+  },
+  "human.nonsense.p_r_a": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/p_r_a"]
+  },
+  "human.nonsense.s_s_p": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/nonsense/s_s_p"]
+  },
+  "human.safety.b_c_o_g_p_l_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/safety/b_c_o_g_p_l_r"]
+  },
+  "human.security.d_n_f_i_c_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/security/d_n_f_i_c_r"]
+  },
   "human.shift_h": {
     "category": "music",
     "sounds": ["mirage_gfbs:human/shift_h"]
   },
+  "human.war.c_p_d_e_n": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/war/c_p_d_e_n"]
+  },
+  "human.war.f_d_a_n": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/war/f_d_a_n"]
+  },
+  "human.war.n_e_s_i_s_40": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/war/n_e_s_i_s_40"]
+  },
+  "human.war.p_s_d_c_40": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/war/p_s_d_c_40"]
+  },
+  "human.war.s_d_c_200": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/war/s_d_c_200"]
+  },
+  "human.work.dmr_r_o_l": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/dmr_r_o_l"]
+  },
+  "human.work.f_m_s_c_m": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/f_m_s_c_m"]
+  },
+  "human.work.f_s_d_r_a_c": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/f_s_d_r_a_c"]
+  },
+  "human.work.h_c_w_c": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/h_c_w_c"]
+  },
+  "human.work.l_d_d_w": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/l_d_d_w"]
+  },
+  "human.work.m_o_b_m": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/m_o_b_m"]
+  },
+  "human.work.n_e_e_a_m_b_e_a": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/n_e_e_a_m_b_e_a"]
+  },
+  "human.work.n_n_t_p_c_w": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/n_n_t_p_c_w"]
+  },
+  "human.work.n_s_h_w_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/n_s_h_w_r"]
+  },
+  "human.work.n_s_w_a": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/n_s_w_a"]
+  },
+  "human.work.r_w_p_a_s": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/r_w_p_a_s"]
+  },
+  "human.work.s_r_a_n_s": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/s_r_a_n_s"]
+  },
+  "human.work.s_t_w_i_r": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/s_t_w_i_r"]
+  },
+  "human.work.u_w_r_s": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:human/work/u_w_r_s"]
+  },
   "music.adminroom_chair_duang": {
     "category": "music",
     "sounds": ["mirage_gfbs:music/adminroom_chair_duang"],
+    "stream": true
+  },
+  "music.bms_wagh_m": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:music/bms_wagh_m"],
     "stream": true
   },
   "music.diagonal_ele_1_m": {
@@ -206,6 +438,11 @@
   "music.ele_2_m": {
     "category": "music",
     "sounds": ["mirage_gfbs:music/ele_2_m"],
+    "stream": true
+  },
+  "music.goc_rc_m": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:music/goc_rc_m"],
     "stream": true
   },
   "music.new_p1_m": {
@@ -276,16 +513,6 @@
   "music.wuhu": {
     "category": "music",
     "sounds": ["mirage_gfbs:music/wuhu"],
-    "stream": true
-  },
-  "music.bms_wagh_m": {
-    "category": "music",
-    "sounds": ["mirage_gfbs:music/bms_wagh_m"],
-    "stream": true
-  },
-  "music.goc_rc_m": {
-    "category": "music",
-    "sounds": ["mirage_gfbs:music/goc_rc_m"],
     "stream": true
   },
   "surroundings.airlock": {
@@ -360,6 +587,10 @@
     "category": "music",
     "sounds": ["mirage_gfbs:surroundings/water"]
   },
+  "war.main90": {
+    "category": "music",
+    "sounds": ["mirage_gfbs:war/main90"]
+  },
   "war.war": {
     "category": "music",
     "sounds": ["mirage_gfbs:war/war"]
@@ -367,9 +598,5 @@
   "war.war_yes": {
     "category": "music",
     "sounds": ["mirage_gfbs:war/war_yes"]
-  },
-  "war.main90": {
-    "category": "music",
-    "sounds": ["mirage_gfbs:war/main90"]
   }
 }

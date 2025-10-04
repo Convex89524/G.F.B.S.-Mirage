@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 public class CallScriptCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("MirageCallScript")
-                .requires(source -> source.hasPermission(2)) // OP等级3+
+                .requires(source -> source.hasPermission(2)) // OP等级2+
                 .then(Commands.argument("script_id", StringArgumentType.string())
                         .executes(context -> {
                             String scriptId = StringArgumentType.getString(context, "script_id");

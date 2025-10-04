@@ -1,0 +1,74 @@
+音频文件英文翻译对照表
+
+【DMR操作】
+p2任务下达.ogg - P2 Mission Assignment.ogg
+人员提醒.ogg - Personnel Reminder.ogg
+人员提醒2.ogg - Personnel Reminder 2.ogg
+员工返回岗位.ogg - Employees Return to Post.ogg
+团队提醒.ogg - Team Reminder.ogg
+安保人员提醒.ogg - Security Personnel Reminder.ogg
+撤离前关了反应堆不许跑.ogg - Turn Off Reactor Before Evacuation, No Running.ogg
+
+【FAAS安全提示】
+倚靠栏杆小心被夹死.ogg - Be Careful of Getting Pinched When Leaning on Railings.ogg
+
+【人员调离】
+人员岗位安排.ogg - Personnel Post Assignment.ogg
+医生前往A区.ogg - Doctor Proceed to Area A.ogg
+医生前往控制站.ogg - Doctor Proceed to Control Station.ogg
+威廉姆博士调到24控制站.ogg - Dr. William Transferred to Control Station 24.ogg
+安保前往一号控制室.ogg - Security Proceed to Control Room 1.ogg
+接待员调岗.ogg - Receptionist Transfer.ogg
+清洁团队去地下一清理坚果.ogg - Cleaning Team to Basement 1 for Nut Cleaning.ogg
+维修去ALPHA泵站.ogg - Maintenance to ALPHA Pump Station.ogg
+
+【安保相关】
+别在控制室乱开枪.ogg - Do Not Fire Indiscriminately in Control Room.ogg
+
+【工作相关】
+DMR辐射爆表.ogg - DMR Radiation Over Limit.ogg
+基因实验区域禁止吃东西（出现变异面包.ogg - No Eating in Genetic Experiment Area (Mutant Bread Appeared).ogg
+夜班交接班.ogg - Night Shift Handover.ogg
+夜班工作安排.ogg - Night Shift Work Arrangement.ogg
+夜班结束交报告.ogg - Submit Report After Night Shift.ogg
+封锁演习.ogg - Lockdown Drill.ogg
+小心使用对撞机.ogg - Handle Collider with Caution.ogg
+提交本周事件报告.ogg - Submit This Week's Incident Report.ogg
+无需惊慌继续工作.ogg - No Need to Panic, Continue Working.ogg
+服务器数据恢复和破解.ogg - Server Data Recovery and Cracking.ogg
+看到人员上报.ogg - Report When Personnel Are Seen.ogg
+管理层发飙.ogg - Management Outburst.ogg
+紧急交周报.ogg - Urgent Weekly Report Submission.ogg
+设施放电影.ogg - Facility Movie Screening.ogg
+
+【扯淡的】
+MRC安排牛马干活.ogg - MRC Assigning Menial Labor.ogg
+乘客碎碎念.ogg - Passenger Rambling.ogg
+五天没事故.ogg - Five Days Without Incidents.ogg
+冰淇凌取消.ogg - Ice Cream Canceled.ogg
+别在垃圾桶里到屎.ogg - Do Not Defecate in Trash Cans.ogg
+别顺笔了.ogg - Stop Stealing Pens.ogg
+办公室猫丢了又找到了.ogg - Office Cat Lost and Found.ogg
+午餐被别人吃了.ogg - Lunch Eaten by Someone Else.ogg
+可乐被偷了.ogg - Cola Stolen.ogg
+员工厕所按水槽.ogg - Employees Press the Sink in Restroom.ogg
+对医生感谢和要求.ogg - Gratitude and Requests to Doctor.ogg
+对讲意外开启.ogg - Intercom Accidentally Activated.ogg
+广播（深金...）.ogg - Broadcast (Deep Gold...).ogg
+找到了自己的午餐.ogg - Found Own Lunch.ogg
+披萨日取消.ogg - Pizza Day Canceled.ogg
+洞穴被当厕所的问题.ogg - Cave Used as Restroom Issue.ogg
+清洁医生办公室.ogg - Clean Doctor's Office.ogg
+黑色车主移车.ogg - Black Car Owner Move Your Vehicle.ogg
+
+【核弹相关】
+200秒引爆倒计时.ogg - 200 Second Detonation Countdown.ogg
+下通知40秒后进入待发.ogg - Notify: Enter Standby in 40 Seconds.ogg
+弹头30秒倒计时引爆.ogg - Projectile 30 Second Detonation Countdown.ogg
+弹头确定引爆下达撤离通知.ogg - Confirmed Projectile Detonation, Evacuation Notice.ogg
+设施引爆授权通知.ogg - Facility Detonation Authorization Notice.ogg
+
+【紧急警报】
+人员撤离.ogg - Personnel Evacuation.ogg
+紧急疏散解除.ogg - Emergency Evacuation Lifted.ogg
+红色代码人员撤离.ogg - Code Red Personnel Evacuation.ogg

@@ -1,0 +1,8 @@
+dmr - DMR
+safety - FAAS安全提示
+security - 安保相关
+nonsense - 扯淡的
+work - 工作相关
+war - 核弹相关
+emergency - 紧急广播
+evacuation - 人员调离

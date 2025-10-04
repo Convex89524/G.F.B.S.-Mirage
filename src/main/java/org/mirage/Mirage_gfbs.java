@@ -24,7 +24,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
@@ -60,6 +62,7 @@ import org.mirage.Objects.Structure.Registrar;
 import org.mirage.Objects.blocks.BlockRegistration;
 import org.mirage.Objects.items.ItemRegistration;
 import org.mirage.Phenomenon.CameraShake.CameraShakeModule;
+import org.mirage.Phenomenon.FogApi.CustomFogModule;
 import org.mirage.Phenomenon.network.Notification.PacketHandler;
 import org.mirage.Phenomenon.network.ScriptSystem.NetworkHandler;
 import org.mirage.Phenomenon.network.packets.GlobalSoundPlayer;
@@ -137,6 +140,8 @@ public class Mirage_gfbs {
             LOGGER.info("Registered notification network channel");
         });
 
+        event.enqueueWork(NetworkHandler::register);
+
         Registrar.onSetup(event);
 
         event.enqueueWork(() -> {
@@ -157,13 +162,23 @@ public class Mirage_gfbs {
 
         event.enqueueWork(() -> {
             LOGGER.debug("Register the NetworkHandler...");
-            NetworkHandler.register();
+            org.mirage.Phenomenon.network.Network.NetworkHandler.register();
         });
     }
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
 
+    }
+
+    @SubscribeEvent
+    public void onPlayerLogin(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer) {
+            ServerPlayer player = (ServerPlayer) event.getEntity();
+            CompoundTag fogSettings = FogCommand.getCurrentFogSettings();
+            org.mirage.Phenomenon.network.Network.NetworkHandler.sendToPlayer(player, "fog_settings", fogSettings);
+            LOGGER.debug("Synchronized fog settings to player: {}", player.getName().getString());
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -185,6 +200,8 @@ public class Mirage_gfbs {
         FogCommand.register(event.getDispatcher());
     }
 
+    public static CustomFogModule customFogModule;
+
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
@@ -194,6 +211,8 @@ public class Mirage_gfbs {
             // Some client setup code
             LOGGER.info("CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+
+            customFogModule = new CustomFogModule();
         }
     }
 

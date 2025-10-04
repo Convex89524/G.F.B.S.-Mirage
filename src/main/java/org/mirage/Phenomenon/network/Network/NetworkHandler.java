@@ -32,37 +32,32 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public class NetworkHandler {
     private static final String PROTOCOL_VERSION = "1";
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(Mirage_gfbs.MODID, "network_system_miragev"),
-            () -> PROTOCOL_VERSION,
-            PROTOCOL_VERSION::equals,
-            PROTOCOL_VERSION::equals
-    );
+    private static SimpleChannel CHANNEL;
     private static int packetId = 0;
 
-    public void register() {
-        try {
-            CHANNEL.registerMessage(packetId++, EventPacket.class,
-                    EventPacket::encode,
-                    this::decode,
-                    EventPacket::handle,
-                    Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-            Mirage_gfbs.LOGGER.info("Successfully registered network channel");
-        } catch (Exception e) {
-            Mirage_gfbs.LOGGER.error("Error occurred while registering network channel", e);
-        }
-    }
+    public static void register() {
+        CHANNEL = NetworkRegistry.newSimpleChannel(
+                new ResourceLocation(Mirage_gfbs.MODID, "network_system_miragev"),
+                () -> PROTOCOL_VERSION,
+                PROTOCOL_VERSION::equals,
+                PROTOCOL_VERSION::equals
+        );
 
-    private EventPacket decode(FriendlyByteBuf buf) {
-        try {
-            return new EventPacket(buf);
-        } catch (Exception e) {
-            Mirage_gfbs.LOGGER.error("Error occurred while decoding network packet", e);
-            throw new RuntimeException("Failed to decode network packet", e);
-        }
+        CHANNEL.registerMessage(packetId++, EventPacket.class,
+                EventPacket::encode,
+                EventPacket::new,
+                EventPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+
+        Mirage_gfbs.LOGGER.info("Successfully registered network channel");
     }
 
     public static void sendToPlayer(ServerPlayer player, String eventId, CompoundTag data) {
+        if (CHANNEL == null) {
+            Mirage_gfbs.LOGGER.error("Network channel not initialized. Cannot send event: {}", eventId);
+            return;
+        }
+
         try {
             CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new EventPacket(eventId, data));
             Mirage_gfbs.LOGGER.debug("Successfully sent event to player {}: {}", player.getName().getString(), eventId);
@@ -72,6 +67,11 @@ public class NetworkHandler {
     }
 
     public static void sendToAll(String eventId, CompoundTag data) {
+        if (CHANNEL == null) {
+            Mirage_gfbs.LOGGER.error("Network channel not initialized. Cannot send event: {}", eventId);
+            return;
+        }
+
         try {
             CHANNEL.send(PacketDistributor.ALL.noArg(), new EventPacket(eventId, data));
             Mirage_gfbs.LOGGER.debug("Successfully sent event to all players: {}", eventId);

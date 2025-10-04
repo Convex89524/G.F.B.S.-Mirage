@@ -19,12 +19,14 @@
 package org.mirage.Phenomenon.FogApi;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.FogRenderer;
+
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.material.FogType;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.mirage.Phenomenon.network.Network.ClientEventHandler;
 
 public class CustomFogModule {
 
@@ -35,7 +37,28 @@ public class CustomFogModule {
     private float fogEnd = 1.0f;
     private boolean active = false;
 
-    public CustomFogModule() {}
+    public CustomFogModule() {
+        ClientEventHandler.registerEvent("fog_settings", this::handleFogSettingsUpdate);
+    }
+
+    /**
+     * 处理从服务端接收的雾效果设置更新
+     */
+    private void handleFogSettingsUpdate(CompoundTag data) {
+        this.setFogColor(
+                data.getFloat("red"),
+                data.getFloat("green"),
+                data.getFloat("blue")
+        );
+        this.setFogStart(data.getFloat("start"));
+        this.setFogEnd(data.getFloat("end"));
+
+        if (data.getBoolean("active")) {
+            this.register();
+        } else {
+            this.unregister();
+        }
+    }
 
     /**
      * 注册雾效果事件监听器

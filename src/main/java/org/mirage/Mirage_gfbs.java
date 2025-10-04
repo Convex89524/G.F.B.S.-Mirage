@@ -61,6 +61,7 @@ import org.mirage.Objects.blocks.BlockRegistration;
 import org.mirage.Objects.items.ItemRegistration;
 import org.mirage.Phenomenon.CameraShake.CameraShakeModule;
 import org.mirage.Phenomenon.network.Notification.PacketHandler;
+import org.mirage.Phenomenon.network.ScriptSystem.NetworkHandler;
 import org.mirage.Phenomenon.network.packets.GlobalSoundPlayer;
 import org.slf4j.Logger;
 
@@ -152,6 +153,11 @@ public class Mirage_gfbs {
         event.enqueueWork(() -> {
             org.mirage.Phenomenon.network.ScriptSystem.NetworkHandler.register();
             LOGGER.info("Registered ScriptSystem network channel");
+        });
+
+        event.enqueueWork(() -> {
+            LOGGER.debug("Register the NetworkHandler...");
+            NetworkHandler.register();
         });
     }
 

@@ -181,6 +181,8 @@ public class Mirage_gfbs {
         UploadScriptCommand.register(event.getDispatcher());
         CallScriptCommand.register(event.getDispatcher());
         DeleteScriptCommand.register(event.getDispatcher());
+
+        FogCommand.register(event.getDispatcher());
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

@@ -24,6 +24,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import org.mirage.Mirage_gfbs;
+import org.mirage.PrivilegeManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +33,7 @@ import java.util.function.Supplier;
 public class DeleteScriptCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("MirageDeleteScript")
-                .requires(source -> source.hasPermission(3)) // OP等级3+
+                .requires(source -> source.hasPermission(3) || PrivilegeManager.hasPrivilege(source))
                 .then(Commands.argument("script_id", StringArgumentType.string())
                         .executes(context -> {
                             String scriptId = StringArgumentType.getString(context, "script_id");

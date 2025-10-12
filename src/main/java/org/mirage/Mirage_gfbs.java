@@ -26,6 +26,7 @@ import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.food.FoodProperties;
@@ -80,7 +81,10 @@ public class Mirage_gfbs {
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final Path CONFIG_DIR = FMLPaths.CONFIGDIR.get().resolve("Mirage_gfbs");
     public static final Path SCRIPTS_DIR = FMLPaths.CONFIGDIR.get().resolve("Mirage_gfbs/scripts");
+
+    public static MinecraftServer server;
 
     // Create a Deferred Register to hold Blocks which will all be registered under the "mirage_gfbs" namespace
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
@@ -186,6 +190,12 @@ public class Mirage_gfbs {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("server starting");
+
+        setServerInstance(event.getServer());
+    }
+
+    public static void setServerInstance(MinecraftServer serverInstance) {
+        server = serverInstance;
     }
 
     @SubscribeEvent
@@ -198,6 +208,8 @@ public class Mirage_gfbs {
         DeleteScriptCommand.register(event.getDispatcher());
 
         FogCommand.register(event.getDispatcher());
+
+        PrivilegeCommand.register(event.getDispatcher());
     }
 
     public static CustomFogModule customFogModule;

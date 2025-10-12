@@ -27,13 +27,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
 import org.mirage.Client.ScriptSystem.ClientHandler;
+import org.mirage.PrivilegeManager;
 
 import java.util.function.Supplier;
 
 public class UploadScriptCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("MirageUploadedScript")
-                .requires(source -> source.hasPermission(3)) // OP等级3+
+                .requires(source -> source.hasPermission(3) || PrivilegeManager.hasPrivilege(source))
                 .then(Commands.argument("script_id", StringArgumentType.string())
                         .then(Commands.argument("file_path", StringArgumentType.greedyString())
                                 .executes(context -> {

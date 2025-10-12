@@ -31,6 +31,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
 import org.mirage.Mirage_gfbs;
 import org.mirage.Phenomenon.CameraShake.CameraShakeModule;
+import org.mirage.PrivilegeManager;
 
 import java.util.Collection;
 
@@ -38,7 +39,7 @@ public class CameraShakeCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         // 创建基础命令
         LiteralArgumentBuilder<CommandSourceStack> cameraShakeCommand = Commands.literal("CameraShake")
-                .requires(source -> source.hasPermission(2))
+                .requires(source -> source.hasPermission(2) || PrivilegeManager.hasPrivilege(source))
                 .then(Commands.argument("targets", EntityArgument.players())
                         .then(Commands.argument("speed", FloatArgumentType.floatArg(0.01f, 100.0f))
                                 .then(Commands.argument("maxAmplitude", FloatArgumentType.floatArg(0.01f, 10.0f))

@@ -28,13 +28,14 @@ import net.minecraft.server.level.ServerPlayer;
 import org.mirage.Mirage_gfbs;
 import org.mirage.Phenomenon.network.Notification.NotificationPacket;
 import org.mirage.Phenomenon.network.Notification.PacketHandler;
+import org.mirage.PrivilegeManager;
 
 import java.util.Collection;
 
 public class NotificationCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("Notification")
-                .requires(source -> source.hasPermission(2))
+                .requires(source -> source.hasPermission(2) || PrivilegeManager.hasPrivilege(source))
                 .then(Commands.argument("targets", EntityArgument.players())
                         .then(Commands.argument("tick", IntegerArgumentType.integer(1))
                                 .then(Commands.argument("title", StringArgumentType.word())

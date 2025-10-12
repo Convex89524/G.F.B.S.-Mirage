@@ -24,13 +24,14 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import org.mirage.Phenomenon.ScriptSystem.ScriptExecutor;
+import org.mirage.PrivilegeManager;
 
 import java.util.function.Supplier;
 
 public class CallScriptCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("MirageCallScript")
-                .requires(source -> source.hasPermission(2)) // OP等级2+
+                .requires(source -> source.hasPermission(2) || PrivilegeManager.hasPrivilege(source))
                 .then(Commands.argument("script_id", StringArgumentType.string())
                         .executes(context -> {
                             String scriptId = StringArgumentType.getString(context, "script_id");

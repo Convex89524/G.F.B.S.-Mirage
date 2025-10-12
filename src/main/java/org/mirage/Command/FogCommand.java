@@ -31,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.mirage.Mirage_gfbs;
 import org.mirage.Phenomenon.network.Network.NetworkHandler;
+import org.mirage.PrivilegeManager;
 
 public class FogCommand {
     private static final CompoundTag currentFogSettings = new CompoundTag();
@@ -46,7 +47,7 @@ public class FogCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> fogCommand = Commands.literal("miragefog")
-                .requires(source -> source.hasPermission(2))
+                .requires(source -> source.hasPermission(2) || PrivilegeManager.hasPrivilege(source))
                 .then(Commands.literal("toggle")
                         .then(Commands.argument("state", BoolArgumentType.bool())
                                 .executes(context -> toggleFog(context, BoolArgumentType.getBool(context, "state"))))

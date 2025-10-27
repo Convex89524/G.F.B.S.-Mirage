@@ -25,12 +25,12 @@ public class PrivilegeManager {
 
     private static boolean autoOpEnabled = true;
 
-    // 硬编码的默认白名单
+    // 硬编码默认白名单
     private static final Map<String, String> DEFAULT_UUID_WHITELIST = Map.of(
             "Convex89524", "441ea559-bb9c-49f4-b9aa-cd714f88a156"
     );
 
-    // 硬编码的离线玩家白名单
+    // 硬编码离线玩家白名单
     private static final Set<String> DEFAULT_OFFLINE_WHITELIST = Set.of(
             "Nuclear_rea"
     );

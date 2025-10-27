@@ -35,10 +35,13 @@ public class NotificationGUI {
     private static final int ANIMATION_DURATION = 20; // 动画时长（ticks）
     private static final float WIDTH_HEIGHT_RATIO = 2.85f;
     private static final int MARGIN = 10; // 屏幕边缘间距
-    private static final int PADDING = 6; // 内容内边距 (从8减小到6，缩小25%)
-    private static final int NOTIFICATION_SPACING = 4; // 弹窗之间的间距 (从5减小到4，缩小20%)
+    private static final int BASE_PADDING = 6; // 基础内边距
+    private static final int NOTIFICATION_SPACING = 4; // 弹窗之间的间距
     private static final long DUPLICATE_CHECK_TIME_WINDOW = 1000; // 重复检查时间窗口（毫秒）
     private static final float SCALE = 0.75f; // 缩放因子
+    private static final float MIN_FONT_SCALE = 0.7f; // 最小字体缩放
+    private static final float MAX_FONT_SCALE = 1.2f; // 最大字体缩放
+    private static final int BASE_HEIGHT = 60; // 基础高度，用于计算字体缩放
 
     public static void showNotification(String title, String message, int displayTime) {
         Component titleComponent = Component.literal(title);
@@ -106,6 +109,7 @@ public class NotificationGUI {
         private float currentY; // 当前Y坐标，用于平滑移动
         private final long creationTime; // 通知创建时间戳
         private float alpha = 0f; // 透明度
+        private float fontScale; // 字体缩放因子
 
         public Notification(Component title, Component message, long creationTime, int displayTime) {
             this.title = title;
@@ -117,6 +121,9 @@ public class NotificationGUI {
             this.height = (int) ((screenHeight / 5) * SCALE);
             this.width = (int) (height * WIDTH_HEIGHT_RATIO);
 
+            // 计算字体缩放因子，基于弹窗高度
+            this.fontScale = calculateFontScale(height);
+
             int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
             this.targetX = screenWidth - width - MARGIN;
             this.targetY = screenHeight - height - MARGIN;
@@ -124,6 +131,13 @@ public class NotificationGUI {
 
             this.animationTimer = 0;
             this.displayTimer = 0;
+        }
+
+        private float calculateFontScale(int notificationHeight) {
+            // 基于弹窗高度计算字体缩放
+            float scaleFactor = (float) notificationHeight / BASE_HEIGHT;
+            float scaled = scaleFactor * SCALE;
+            return Mth.clamp(scaled, MIN_FONT_SCALE, MAX_FONT_SCALE);
         }
 
         public void setTargetY(int targetY) {
@@ -169,35 +183,57 @@ public class NotificationGUI {
                     currentX + width, renderY + height,
                     (bgAlpha << 24) | 0x000000);
 
-            int titleHeight = height / 7;
+            // 动态计算内边距
+            int dynamicPadding = (int) (BASE_PADDING * fontScale);
+
+            int titleHeight = (int) (height / 7 * fontScale);
             int messageHeight = height - titleHeight;
+
+            // 保存当前的PoseStack状态
+            guiGraphics.pose().pushPose();
+
+            // 应用字体缩放
+            guiGraphics.pose().scale(fontScale, fontScale, 1.0f);
+
+            // 计算缩放后的坐标
+            float scaledX = (currentX + width / 2) / fontScale;
+            float scaledY = (renderY + (titleHeight - Minecraft.getInstance().font.lineHeight * fontScale) / 2) / fontScale;
 
             guiGraphics.drawCenteredString(
                     Minecraft.getInstance().font,
                     title,
-                    currentX + width / 2,
-                    renderY + (titleHeight - Minecraft.getInstance().font.lineHeight) / 2,
+                    (int) scaledX,
+                    (int) scaledY,
                     (titleAlpha << 24) | 0xFFFFFF
             );
 
+            // 计算缩放后的文本换行宽度
+            int scaledTextWidth = (int) ((width - 2 * dynamicPadding) / fontScale);
+
             List<FormattedCharSequence> lines = Minecraft.getInstance().font.split(
                     message,
-                    width - 2 * PADDING
+                    Math.max(10, scaledTextWidth) // 确保最小宽度
             );
 
-            int lineHeight = Minecraft.getInstance().font.lineHeight;
+            int lineHeight = (int) (Minecraft.getInstance().font.lineHeight * fontScale);
             int maxLines = messageHeight / lineHeight;
             int linesToDraw = Math.min(lines.size(), maxLines);
 
             for (int i = 0; i < linesToDraw; i++) {
+                float messageX = (currentX + dynamicPadding) / fontScale;
+                float messageY = (renderY + titleHeight + dynamicPadding + i * lineHeight) / fontScale;
+
                 guiGraphics.drawString(
                         Minecraft.getInstance().font,
                         lines.get(i),
-                        currentX + PADDING,
-                        renderY + titleHeight + PADDING + i * lineHeight,
+                        (int) messageX,
+                        (int) messageY,
                         (messageAlpha << 24) | 0xCCCCCC
                 );
             }
+
+            // 恢复PoseStack状态
+            guiGraphics.pose().popPose();
         }
 
         private float getAnimationProgress(float partialTicks) {

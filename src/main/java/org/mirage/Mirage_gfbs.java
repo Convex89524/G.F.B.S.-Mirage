@@ -48,6 +48,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import org.mirage.Command.*;
+import org.mirage.Event.Dmr_Meltdown;
 import org.mirage.Event.Main90Alpha;
 import org.mirage.Objects.Structure.Registrar;
 import org.mirage.Objects.blocks.BlockRegistration;
@@ -156,6 +157,7 @@ public class Mirage_gfbs {
         Task.spawn(()->{
             MirageGFBsEventCommand.registerHandler("dmr_meltdown", (context)->{
                 CommandExecutor.executeCommand("Notification @a 100 F.A.A.S. 暗物质反应堆紧急融毁程序启用.");
+                Dmr_Meltdown.execute(context);
             });
         });
     }

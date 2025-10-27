@@ -24,6 +24,33 @@ public class Task {
         return scheduler.scheduleAtFixedRate(task, initialDelay, period, unit);
     }
 
+    /**
+     * 等待指定的毫秒数（非阻塞方式）
+     * 适用于在Task协程运行的分支中使用
+     *
+     * @param milliseconds 等待的毫秒数
+     * @return CompletableFuture<Void> 等待完成的Future
+     */
+    public static CompletableFuture<Void> sleep(long milliseconds) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        scheduler.schedule(() -> future.complete(null), milliseconds, TimeUnit.MILLISECONDS);
+        return future;
+    }
+
+    /**
+     * 等待指定的时间（非阻塞方式）
+     * 适用于在Task协程运行的分支中使用
+     *
+     * @param delay 等待时间
+     * @param unit 时间单位
+     * @return CompletableFuture<Void> 等待完成的Future
+     */
+    public static CompletableFuture<Void> sleep(long delay, TimeUnit unit) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        scheduler.schedule(() -> future.complete(null), delay, unit);
+        return future;
+    }
+
     // 关闭任务调度器
     public static void shutdown() {
         scheduler.shutdownNow();

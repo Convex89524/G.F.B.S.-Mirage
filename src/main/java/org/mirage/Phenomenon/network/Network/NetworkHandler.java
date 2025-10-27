@@ -54,13 +54,11 @@ public class NetworkHandler {
 
     public static void sendToPlayer(ServerPlayer player, String eventId, CompoundTag data) {
         if (CHANNEL == null) {
-            Mirage_gfbs.LOGGER.error("Network channel not initialized. Cannot send event: {}", eventId);
             return;
         }
 
         try {
             CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new EventPacket(eventId, data));
-            Mirage_gfbs.LOGGER.debug("Successfully sent event to player {}: {}", player.getName().getString(), eventId);
         } catch (Exception e) {
             Mirage_gfbs.LOGGER.error("Error occurred while sending event to player: {}", eventId, e);
         }
@@ -74,7 +72,6 @@ public class NetworkHandler {
 
         try {
             CHANNEL.send(PacketDistributor.ALL.noArg(), new EventPacket(eventId, data));
-            Mirage_gfbs.LOGGER.debug("Successfully sent event to all players: {}", eventId);
         } catch (Exception e) {
             Mirage_gfbs.LOGGER.error("Error occurred while sending event to all players: {}", eventId, e);
         }

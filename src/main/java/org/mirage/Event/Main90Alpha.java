@@ -47,7 +47,7 @@ public class Main90Alpha {
 
             startSmoothFogFadeOut();
 
-        }, 140756, TimeUnit.MILLISECONDS);
+        }, 141000, TimeUnit.MILLISECONDS);
     }
 
     private static void startSmoothFogFadeOut() {

@@ -22,6 +22,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -35,6 +36,8 @@ import org.mirage.PrivilegeManager;
 
 public class FogCommand {
     private static final CompoundTag currentFogSettings = new CompoundTag();
+
+    private static int transitionDuration = 1000;
 
     static {
         currentFogSettings.putBoolean("active", false);
@@ -70,6 +73,10 @@ public class FogCommand {
                                                 FloatArgumentType.getFloat(context, "end"))))))
                 .then(Commands.literal("status")
                         .executes(FogCommand::getFogStatus))
+                .then(Commands.literal("transition")
+                        .then(Commands.argument("duration", IntegerArgumentType.integer(0, 10000))
+                                .executes(context -> setTransitionDuration(
+                                        context, IntegerArgumentType.getInteger(context, "duration")))))
                 .then(Commands.literal("sync")
                         .executes(FogCommand::syncFogToAllClients));
 
@@ -79,8 +86,6 @@ public class FogCommand {
     private static int toggleFog(CommandContext<CommandSourceStack> context, boolean state) {
         currentFogSettings.putBoolean("active", state);
         syncFogToAllClients(context);
-        context.getSource().sendSuccess(() -> Component.literal(
-                state ? "自定义雾效果已启用" : "自定义雾效果已禁用"), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -89,8 +94,6 @@ public class FogCommand {
         currentFogSettings.putFloat("green", green);
         currentFogSettings.putFloat("blue", blue);
         syncFogToAllClients(context);
-        context.getSource().sendSuccess(() -> Component.literal(
-                String.format("雾颜色已设置为: R=%.2f, G=%.2f, B=%.2f", red, green, blue)), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -98,8 +101,6 @@ public class FogCommand {
         currentFogSettings.putFloat("start", start);
         currentFogSettings.putFloat("end", end);
         syncFogToAllClients(context);
-        context.getSource().sendSuccess(() -> Component.literal(
-                String.format("雾范围已设置为: 起始=%.1f, 结束=%.1f", start, end)), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -113,18 +114,27 @@ public class FogCommand {
 
         String status = active ? "启用" : "禁用";
         context.getSource().sendSuccess(() -> Component.literal(
-                String.format("雾效果状态: %s, 颜色: R=%.2f G=%.2f B=%.2f, 范围: %.1f-%.1f",
-                        status, red, green, blue, start, end)), false);
+                String.format("雾效果状态: %s, 颜色: R=%.2f G=%.2f B=%.2f, 范围: %.1f-%.1f, 渐变时间: %d毫秒",
+                        status, red, green, blue, start, end, transitionDuration)), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int syncFogToAllClients(CommandContext<CommandSourceStack> context) {
-        NetworkHandler.sendToAll("fog_settings", currentFogSettings);
-        context.getSource().sendSuccess(() -> Component.literal("雾效果设置已同步到所有客户端"), false);
+        CompoundTag fogData = currentFogSettings.copy();
+        fogData.putInt("transitionDuration", transitionDuration);
+
+        NetworkHandler.sendToAll("fog_settings", fogData);
         return Command.SINGLE_SUCCESS;
     }
 
     public static CompoundTag getCurrentFogSettings() {
         return currentFogSettings.copy();
+    }
+
+    private static int setTransitionDuration(CommandContext<CommandSourceStack> context, int duration) {
+        transitionDuration = Math.max(0, Math.min(10000, duration));
+        context.getSource().sendSuccess(() -> Component.literal(
+                "雾效果渐变时间设置为: " + transitionDuration + "毫秒"), false);
+        return Command.SINGLE_SUCCESS;
     }
 }

@@ -94,7 +94,7 @@ public class Dmr_Meltdown {
                 }, 82972, TimeUnit.MILLISECONDS);
 
                 Task.delay(()->{
-                    executeCommand("playsound mirage_gfbs:faas.f_l_b voice @a ~ ~ ~ 1 1 1");
+                    executeCommand("playsound mirage_gfbs:faas.f_l_b_a voice @a ~ ~ ~ 1 1 1");
                     executeCommand("Notification @a 200 F.A.A.S. 注意, 封锁措施现已启动, 防爆门将在一分钟后关闭.");
                 }, 142786, TimeUnit.MILLISECONDS);
 

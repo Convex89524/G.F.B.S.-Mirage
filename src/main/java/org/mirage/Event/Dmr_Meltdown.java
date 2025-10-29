@@ -106,6 +106,10 @@ public class Dmr_Meltdown {
             }, 360000, TimeUnit.MILLISECONDS);
 
         }, 5000, TimeUnit.MILLISECONDS);
+
+        Task.delay(()->{
+
+        }, 27500, TimeUnit.MILLISECONDS);
     }
 
     private static void NeiBao(){

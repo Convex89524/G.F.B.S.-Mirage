@@ -10,6 +10,7 @@ import org.mirage.Mirage_gfbs;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.Set;
 
 public class MirageGFBsEventCommand {
     private static final Map<String, Consumer<CommandContext>> handlers = new HashMap<>();
@@ -33,6 +34,11 @@ public class MirageGFBsEventCommand {
             }
         }
         return false;
+    }
+
+    // 获取所有已注册的事件ID
+    public static Set<String> getAllRegisteredEvents() {
+        return handlers.keySet();
     }
 
     // 命令上下文类
@@ -94,6 +100,35 @@ public class MirageGFBsEventCommand {
                                                 }
                                             })
                                     )
+                            )
+                            .then(Commands.literal("list")
+                                    .executes(context -> {
+                                        try {
+                                            CommandContext ctx = new CommandContext(context.getSource());
+                                            Set<String> eventIds = getAllRegisteredEvents();
+
+                                            if (eventIds.isEmpty()) {
+                                                ctx.sendSuccess("当前没有注册任何事件");
+                                            } else {
+                                                StringBuilder message = new StringBuilder("已注册的事件列表(" + eventIds.size() + "个):\n");
+                                                int index = 1;
+                                                for (String eventId : eventIds) {
+                                                    message.append(index).append(". ").append(eventId).append("\n");
+                                                    index++;
+                                                }
+                                                ctx.sendSuccess(message.toString());
+                                            }
+                                            return 1;
+                                        } catch (Exception e) {
+                                            Mirage_gfbs.LOGGER.error("获取事件列表时发生异常", e);
+                                            try {
+                                                context.getSource().sendFailure(Component.literal("获取事件列表失败: " + e.getMessage()));
+                                            } catch (Exception ex) {
+                                                Mirage_gfbs.LOGGER.error("发送失败消息时发生异常", ex);
+                                            }
+                                            return 0;
+                                        }
+                                    })
                             )
             );
         } catch (Exception e) {

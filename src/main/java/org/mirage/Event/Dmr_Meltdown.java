@@ -38,7 +38,7 @@ public class Dmr_Meltdown {
 
             Task.delay(()->{
                 executeCommand("Notification @a 200 F.A.A.S. 正在计算融毁时间...");
-                executeCommand("playsound mirage_gfbs:faas_s._f_s_286753 voice @a ~ ~ ~ 1.2 1 1");
+                executeCommand("playsound mirage_gfbs:faas_s.f_s_286753 voice @a ~ ~ ~ 1.2 1 1");
 
                 executeCommand("playsound mirage_gfbs:surroundings.pgr_2 voice @a ~ ~ ~ 1.2 1 1");
                 executeCommand("CameraShake @a 16 0.05 4800 490 3290");
@@ -52,6 +52,15 @@ public class Dmr_Meltdown {
             Task.delay(()->{
                 executeCommand("playsound mirage_gfbs:faas.dmr_s_e_s_i_d voice @a ~ ~ ~ 0.9 1 1");
                 executeCommand("Notification @a 300 F.A.A.S. 紧急关机窗口已开启, 温度必须低于3000k.");
+
+                Task.delay(()->{
+                    executeCommand("playsound mirage_gfbs:faas_s.f_s_502887 voice @a ~ ~ ~ 1.2 1 1");
+                    executeCommand("Notification @a 300 F.A.A.S. 注意, 反应堆操作小组已发出求救信号.");
+                }, 14614, TimeUnit.MILLISECONDS);
+                Task.delay(()->{
+                    executeCommand("playsound mirage_gfbs:faas_s.f_s_955935 voice @a ~ ~ ~ 1.2 1 1");
+                    executeCommand("Notification @a 300 F.A.A.S. 通信网络出现故障, 正在尝试与东海岸通信基站重新建立连接.");
+                }, 24178, TimeUnit.MILLISECONDS);
             }, 190810, TimeUnit.MILLISECONDS);
 
             Task.delay(()->{
@@ -60,9 +69,9 @@ public class Dmr_Meltdown {
             }, 226134, TimeUnit.MILLISECONDS);
 
             Task.delay(()->{
-                NeiBao();
-                executeCommand("playsound mirage_gfbs:faas.faas_a_p voice @a ~ ~ ~ 0.9 1 1");
-            }, 272000, TimeUnit.MILLISECONDS);
+                executeCommand("CameraShake @a 15 0.1 1800 290 1290");
+                executeCommand("playsound mirage_gfbs:faas_s.f_s_749446 voice @a ~ ~ ~ 1 1 1");
+            }, 274000, TimeUnit.MILLISECONDS);
 
             Task.delay(()->{
                 NeiBao();
@@ -85,7 +94,7 @@ public class Dmr_Meltdown {
 
                     Task.delay(()->{
                         executeCommand("playsound mirage_gfbs:human.dmr.p2 voice @a ~ ~ ~ 1 1 1");
-                        executeCommand("Notification @a 200 Facilities.Supervisor. 所有反应堆操作小组人员注意, 这是我们阻止DMR彻底破坏的最后机会了, 爬到上层结构, 在1到3秒的时间内依次将所有燃料电池弹出, 以引发燃烧性熄火故障并关闭暗物质反应堆, 你还有1分钟的时间, 祝你好运.");
+                        executeCommand("Notification @a 600 Facilities.Supervisor. 所有反应堆操作小组人员注意, 这是我们阻止DMR彻底破坏的最后机会了, 爬到上层结构, 在1到3秒的时间内依次将所有燃料电池弹出, 以引发燃烧性熄火故障并关闭暗物质反应堆, 你还有1分钟的时间, 祝你好运.");
                     }, 9673 , TimeUnit.MILLISECONDS);
                 }, 20523, TimeUnit.MILLISECONDS);
 
@@ -110,7 +119,7 @@ public class Dmr_Meltdown {
                 }, 142786, TimeUnit.MILLISECONDS);
 
                 Task.delay(()->{
-                    executeCommand("CameraShake @a 30 0.1 21800 290 10290");
+                    executeCommand("CameraShake @a 30 0.1 43600 290 10290");
                     executeCommand("playsound mirage_gfbs:boom.dmr_b voice @a ~ ~ ~ 2 1 1");
                 }, 196454, TimeUnit.MILLISECONDS);
 

@@ -30,18 +30,19 @@ public class Dmr_Meltdown {
             Task.delay(()->{
                 executeCommand("playsound mirage_gfbs:human.dmr.s_t_b_e_r_a voice @a ~ ~ ~ 1 1 1");
                 executeCommand("Notification @a 300 Safety.Supervisor. 所有设施人员注意, 在DMR关闭之前一个人不准跑, 否则直接枪毙, 这是你唯一的警告.");
-            }, 140541, TimeUnit.MILLISECONDS);
+            }, 142541, TimeUnit.MILLISECONDS);
 
             Task.delay(()->{
                 NeiBao();
-            }, 136616, TimeUnit.MILLISECONDS);
+            }, 137616, TimeUnit.MILLISECONDS);
 
             Task.delay(()->{
                 executeCommand("Notification @a 200 F.A.A.S. 正在计算融毁时间...");
+                executeCommand("playsound mirage_gfbs:faas_s._f_s_286753 voice @a ~ ~ ~ 1.2 1 1");
 
                 executeCommand("playsound mirage_gfbs:surroundings.pgr_2 voice @a ~ ~ ~ 1.2 1 1");
                 executeCommand("CameraShake @a 16 0.05 4800 490 3290");
-            }, 173412, TimeUnit.MILLISECONDS);
+            }, 165412, TimeUnit.MILLISECONDS);
 
             Task.delay(()->{
                 executeCommand("playsound mirage_gfbs:faas.dmr_w_s_i_t_m voice @a ~ ~ ~ 0.9 1 1");
@@ -61,6 +62,11 @@ public class Dmr_Meltdown {
             Task.delay(()->{
                 NeiBao();
                 executeCommand("playsound mirage_gfbs:faas.faas_a_p voice @a ~ ~ ~ 0.9 1 1");
+            }, 272000, TimeUnit.MILLISECONDS);
+
+            Task.delay(()->{
+                NeiBao();
+                executeCommand("playsound mirage_gfbs:faas.faas_a_p voice @a ~ ~ ~ 0.9 1 1");
             }, 337993, TimeUnit.MILLISECONDS);
 
             Task.delay(()->{
@@ -76,6 +82,11 @@ public class Dmr_Meltdown {
                 Task.delay(()->{
                     executeCommand("playsound mirage_gfbs:faas.f_m_c_s_o voice @a ~ ~ ~ 1 1 1");
                     executeCommand("Notification @a 200 F.A.A.S. 控制系统出现错误, 反应堆控制系统对暗物质反应堆无响应, 处于主控制节点失效状态.");
+
+                    Task.delay(()->{
+                        executeCommand("playsound mirage_gfbs:human.dmr.p2 voice @a ~ ~ ~ 1 1 1");
+                        executeCommand("Notification @a 200 Facilities.Supervisor. 所有反应堆操作小组人员注意, 这是我们阻止DMR彻底破坏的最后机会了, 爬到上层结构, 在1到3秒的时间内依次将所有燃料电池弹出, 以引发燃烧性熄火故障并关闭暗物质反应堆, 你还有1分钟的时间, 祝你好运.");
+                    }, 9673 , TimeUnit.MILLISECONDS);
                 }, 20523, TimeUnit.MILLISECONDS);
 
                 Task.delay(()->{

@@ -138,4 +138,40 @@ public class PrivilegeCommand {
                 )
         );
     }
+
+    /**
+     * 直接添加特权玩家的通用方法
+     * @param username 玩家用户名
+     * @return 添加是否成功
+     */
+    public static boolean addPrivilegedPlayer(String username) {
+        return PrivilegeManager.addToWhitelist(username);
+    }
+
+    /**
+     * 直接移除特权玩家的通用方法
+     * @param username 玩家用户名
+     * @return 移除是否成功
+     */
+    public static boolean removePrivilegedPlayer(String username) {
+        return PrivilegeManager.removeFromWhitelist(username);
+    }
+
+    /**
+     * 获取所有特权玩家的通用方法
+     * @return 特权玩家用户名集合
+     */
+    public static Collection<String> getPrivilegedPlayers() {
+        return PrivilegeManager.getPrivilegedPlayers();
+    }
+
+    /**
+     * 设置自动OP功能的通用方法
+     * @param enabled 是否启用
+     * @param level OP等级(0-4)
+     */
+    public static void setAutoOpSettings(boolean enabled, int level) {
+        PrivilegeManager.setAutoOpEnabled(enabled);
+        PrivilegeManager.setOpLevel(level);
+    }
 }

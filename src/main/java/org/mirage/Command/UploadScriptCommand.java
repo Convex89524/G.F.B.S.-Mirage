@@ -53,4 +53,27 @@ public class UploadScriptCommand {
                 )
         );
     }
+
+    /**
+     * 直接上传脚本的通用方法
+     * @param source 命令源（用于反馈）
+     * @param scriptId 脚本ID
+     * @param filePath 文件路径
+     */
+    public static void uploadScript(CommandSourceStack source, String scriptId, String filePath) {
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            ClientHandler.uploadScriptFromPath(scriptId, filePath, source);
+        });
+    }
+
+    /**
+     * 客户端直接上传脚本的通用方法
+     * @param scriptId 脚本ID
+     * @param filePath 文件路径
+     * @param source 命令源
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static void uploadScriptClientSide(String scriptId, String filePath, CommandSourceStack source) {
+        ClientHandler.uploadScriptFromPath(scriptId, filePath, source);
+    }
 }

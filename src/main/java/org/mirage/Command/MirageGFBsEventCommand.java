@@ -136,4 +136,23 @@ public class MirageGFBsEventCommand {
             throw e;
         }
     }
+
+    /**
+     * 直接触发事件的通用方法
+     * @param source 命令源
+     * @param eventId 事件ID
+     * @return 触发是否成功
+     */
+    public static boolean triggerEvent(CommandSourceStack source, String eventId) {
+        CommandContext ctx = new CommandContext(source);
+        return executeHandler(eventId, ctx);
+    }
+
+    /**
+     * 获取所有已注册事件ID的通用方法
+     * @return 事件ID集合
+     */
+    public static Set<String> getRegisteredEvents() {
+        return getAllRegisteredEvents();
+    }
 }

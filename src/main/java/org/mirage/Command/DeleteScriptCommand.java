@@ -73,4 +73,22 @@ public class DeleteScriptCommand {
             return false;
         }
     }
+
+    public static boolean deleteScriptDirectly(CommandSourceStack source, String scriptId) {
+        try {
+            Path scriptPath = Mirage_gfbs.SCRIPTS_DIR.resolve(scriptId + ".txt");
+
+            if (!Files.exists(scriptPath)) {
+                source.sendFailure(Component.literal("脚本不存在: " + scriptId));
+                return false;
+            }
+
+            Files.delete(scriptPath);
+            source.sendSuccess(() -> Component.literal("成功删除脚本: " + scriptId), true);
+            return true;
+        } catch (Exception e) {
+            source.sendFailure(Component.literal("删除脚本时出错: " + e.getMessage()));
+            return false;
+        }
+    }
 }

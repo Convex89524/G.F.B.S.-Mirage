@@ -62,4 +62,36 @@ public class NotificationCommand {
                 )
         );
     }
+
+    /**
+     * 直接发送通知的通用方法
+     * @param player 目标玩家
+     * @param title 标题
+     * @param message 消息内容
+     * @param displayTime 显示时间(ticks)
+     */
+    public static void sendNotification(ServerPlayer player, String title, String message, int displayTime) {
+        try {
+            PacketHandler.sendToPlayer(
+                    new NotificationPacket(title, message, displayTime),
+                    player
+            );
+        } catch (Exception e) {
+            Mirage_gfbs.LOGGER.error("发送通知失败", e);
+        }
+    }
+
+    /**
+     * 向多个玩家发送通知的通用方法
+     * @param players 目标玩家集合
+     * @param title 标题
+     * @param message 消息内容
+     * @param displayTime 显示时间(ticks)
+     */
+    public static void sendNotificationToPlayers(Collection<ServerPlayer> players, String title,
+                                                 String message, int displayTime) {
+        for (ServerPlayer player : players) {
+            sendNotification(player, title, message, displayTime);
+        }
+    }
 }

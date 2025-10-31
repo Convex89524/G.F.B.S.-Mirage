@@ -137,4 +137,39 @@ public class FogCommand {
                 "雾效果渐变时间设置为: " + transitionDuration + "毫秒"), false);
         return Command.SINGLE_SUCCESS;
     }
+
+    /**
+     * 直接设置雾效果的通用方法
+     * @param active 是否启用
+     * @param red 红色分量(0-1)
+     * @param green 绿色分量(0-1)
+     * @param blue 蓝色分量(0-1)
+     * @param start 起始距离
+     * @param end 结束距离
+     * @param transitionDuration 渐变时间(毫秒)
+     */
+    public static void setFogSettings(boolean active, float red, float green, float blue,
+                                      float start, float end, int transitionDuration) {
+        currentFogSettings.putBoolean("active", active);
+        currentFogSettings.putFloat("red", red);
+        currentFogSettings.putFloat("green", green);
+        currentFogSettings.putFloat("blue", blue);
+        currentFogSettings.putFloat("start", start);
+        currentFogSettings.putFloat("end", end);
+
+        FogCommand.transitionDuration = Math.max(0, Math.min(10000, transitionDuration));
+
+        // 同步到所有客户端
+        CompoundTag fogData = currentFogSettings.copy();
+        fogData.putInt("transitionDuration", transitionDuration);
+        NetworkHandler.sendToAll("fog_settings", fogData);
+    }
+
+    /**
+     * 获取当前雾效果设置
+     * @return 雾效果设置的副本
+     */
+    public static CompoundTag getFogSettings() {
+        return currentFogSettings.copy();
+    }
 }

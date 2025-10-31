@@ -55,4 +55,16 @@ public class CallScriptCommand {
                 )
         );
     }
+
+    public static boolean executeScriptDirectly(CommandSourceStack source, String scriptId) {
+        boolean success = ScriptExecutor.executeScript(scriptId, source);
+
+        if (success) {
+            source.sendSuccess(() -> Component.literal("成功执行脚本: " + scriptId), true);
+        } else {
+            source.sendFailure(Component.literal("执行脚本失败: " + scriptId));
+        }
+
+        return success;
+    }
 }

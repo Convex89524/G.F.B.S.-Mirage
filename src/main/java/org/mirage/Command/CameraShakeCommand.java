@@ -113,4 +113,27 @@ public class CameraShakeCommand {
             return 0;
         }
     }
+
+    public static boolean triggerCameraShake(ServerPlayer player, float speed, float maxAmplitude,
+                                             int duration, int riseTime, int fallTime) {
+        try {
+            if (riseTime + fallTime > duration) {
+                return false;
+            }
+
+            CameraShakeModule.sendShakeCommand(player, speed, maxAmplitude, duration, riseTime, fallTime);
+            return true;
+        } catch (Exception e) {
+            Mirage_gfbs.LOGGER.error("触发相机震动失败", e);
+            return false;
+        }
+    }
+
+    public static void stopCameraShake(ServerPlayer player) {
+        try {
+            CameraShakeModule.sendShakeStopCommand(player);
+        } catch (Exception e) {
+            Mirage_gfbs.LOGGER.error("停止相机震动失败", e);
+        }
+    }
 }

@@ -290,4 +290,36 @@ public class GlobalSoundPlayCommand {
             );
         }
     }
+
+    /**
+     * 直接播放全局声音的通用方法
+     * @param player 触发玩家
+     * @param soundId 声音ID
+     * @param soundSource 声音分类
+     * @param volume 音量(0-10)
+     */
+    public static void playGlobalSound(ServerPlayer player, ResourceLocation soundId,
+                                       SoundSource soundSource, float volume) {
+        try {
+            GlobalSoundPlayer.playToAllClients(player, soundId, soundSource, volume);
+        } catch (Exception e) {
+            Mirage_gfbs.LOGGER.error("播放全局声音失败", e);
+        }
+    }
+
+    /**
+     * 客户端请求播放全局声音的通用方法
+     * @param soundId 声音ID
+     * @param soundSource 声音分类
+     * @param volume 音量(0-10)
+     */
+    public static void requestGlobalSound(ResourceLocation soundId, SoundSource soundSource, float volume) {
+        try {
+            GlobalSoundPlayer.CHANNEL.sendToServer(
+                    new SoundCommandPacket(soundId, soundSource, volume)
+            );
+        } catch (Exception e) {
+            Mirage_gfbs.LOGGER.error("请求全局声音失败", e);
+        }
+    }
 }

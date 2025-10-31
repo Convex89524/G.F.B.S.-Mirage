@@ -41,6 +41,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.mirage.Mirage_gfbs;
 import org.mirage.Phenomenon.network.packets.GlobalSoundPlayer;
 import org.mirage.PrivilegeManager;
 

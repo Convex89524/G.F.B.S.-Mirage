@@ -1013,6 +1013,12 @@
       "mirage_gfbs:surroundings/water"
     ]
   },
+  "surroundings.big_gate": {
+    "category": "music",
+    "sounds": [
+      "mirage_gfbs:surroundings/big_gate"
+    ]
+  },
   "war.main90": {
     "category": "music",
     "sounds": [

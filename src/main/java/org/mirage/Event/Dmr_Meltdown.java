@@ -34,7 +34,7 @@ public class Dmr_Meltdown {
             Task.delay(()->{
                 executeCommand("playsound mirage_gfbs:human.emergency.c_r_p_e voice @a ~ ~ ~ 1 1 1");
                 NotificationCommand.sendNotificationToPlayers(allPlayers, "Deputy.Reactor.Supervisor.",
-                        "红色紧急情况代码已发布, 请立即疏散.", 200);
+                        "所有设施人员注意，设施自动管理系统已发布红色警报。封锁代码已被指定代码\"Bravo-niner\"覆盖,请立即前往塔塔鲁斯进行撤离. 这不是演习,我重复,这不是演习.", 200);
             }, 30000, TimeUnit.MILLISECONDS);
 
             Task.delay(()->{
